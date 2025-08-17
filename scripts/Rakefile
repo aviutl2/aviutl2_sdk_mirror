@@ -75,6 +75,7 @@ task :convert_description do
     next if heading.empty? || content.empty?
 
     content.gsub!(/^○(.+)$/, "- \\1\\")
+    content.gsub!(/。$/, "。  ")
 
     if heading == "更新履歴"
       content

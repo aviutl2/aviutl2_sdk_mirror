@@ -78,18 +78,23 @@ task :convert_description do
     content.gsub!(/。$/, "。  ")
 
     if heading == "更新履歴"
-      content
-        .split(/\[(\d{4}\/\d{1,2}\/\d{1,2})\]/)
-        .drop(1)
-        .each_slice(2)
-        .to_a
+      changes =
+        content
+          .split(/\[(\d{4}\/\d{1,2}\/\d{1,2})\]/)
+          .drop(1)
+          .each_slice(2)
+          .to_h do |date, change|
+            date.strip!
+            change.strip!
+            next if date.empty? || change.empty?
+
+            change.gsub!(/^\[/, "- [")
+            [date, change]
+          end
+
+      changes
+        .sort_by { |date, _| date.split("/").map(&:to_i) }
         .reverse_each do |date, change|
-          date.strip!
-          change.strip!
-          next if date.empty? || change.empty?
-
-          change.gsub!(/^\[/, "- [")
-
           changelog_lines << "## #{date}"
           changelog_lines << change
           changelog_lines << ""

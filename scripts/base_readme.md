@@ -9,6 +9,8 @@ AviUtl2 SDKのミラーです。
 - `{AviReader,AviSaver}.cpp`は`examples/`に移動されています。
 - すべてのファイルがUTF-8 LFに変換されています。
 
+更新スクリプトは[./scripts/Rakefile](./scripts/Rakefile)を参照してください。
+
 > [!WARNING]
 > これは有志による非公式のミラーです。
 

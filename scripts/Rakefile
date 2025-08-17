@@ -86,6 +86,8 @@ task :convert_description do
           change.strip!
           next if date.empty? || change.empty?
 
+          change.gsub!(/^\[/, "- [")
+
           changelog_lines << "## #{date}"
           changelog_lines << change
           changelog_lines << ""

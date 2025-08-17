@@ -37,6 +37,7 @@ jobs:
           rake
 
       - name: Commit changes
+        working-directory: ${{ github.workspace }}
         run: |
           git config --local user.name "GitHub Action"
           git config --local user.email "actions@github.com"

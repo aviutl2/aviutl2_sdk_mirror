@@ -10,6 +10,8 @@ AviUtl2 SDKのミラーです。
 - `{AviReader,AviSaver}.cpp`は`examples/`に移動されています。
 - すべてのファイルがUTF-8 LFに変換されています。
 
+更新スクリプトは[./scripts/Rakefile](./scripts/Rakefile)を参照してください。
+
 > [!WARNING]
 > これは有志による非公式のミラーです。
 
@@ -21,7 +23,7 @@ AviUtl2 SDKのミラーです。
 
 ## はじめに
 
-AviUtl ExEdit2のPluginを作成するためのSDKです。
+AviUtl ExEdit2のPluginを作成するためのSDKです。  
 Pluginを追加することで他のファイル形式の入出力機能を
 AviUtl ExEdit2に追加することが出来ます。
 
@@ -48,11 +50,11 @@ AviUtl ExEdit2に追加することが出来ます。
 
 ## 使用上の注意
 
-このプログラムはフリーソフトウェアです。
+このプログラムはフリーソフトウェアです。  
 このプログラムの使用によって何らかの障害が発生した場合でも、
 作者は一切の責任を負わないものとします。
 
 ## ライセンス
 
-AviUtl ExEdit2 Plugin SDK は MIT License の元で公開されています。
+AviUtl ExEdit2 Plugin SDK は MIT License の元で公開されています。  
 ライセンスについては付属の license.txt をご覧ください。

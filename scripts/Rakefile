@@ -1,0 +1,151 @@
+task default: %i[
+       clean
+       prepare
+       download_sdk
+       convert_description
+       copy_and_reencode
+     ]
+
+task :clean do
+  rm_rf "tmp/aviutl2_sdk"
+  rm_rf "tmp/aviutl2_sdk.zip"
+  puts "Cleaned up temporary files."
+end
+task :prepare do
+  mkdir_p "tmp"
+  File.write("tmp/.gitignore", "*\n")
+  puts "Prepared temporary directory."
+
+  sh "bun install"
+end
+
+expected_files = %w[
+  aviutl2_plugin_sdk.txt
+  license.txt
+  input2.h
+  output2.h
+  AviReader.cpp
+  AviSaver.cpp
+].to_set
+
+task :download_sdk do
+  require "open-uri"
+
+  url = "https://spring-fragrance.mints.ne.jp/aviutl/aviutl2_sdk.zip"
+  filename = "tmp/aviutl2_sdk.zip"
+  File.open(filename, "wb") { |file| file.write(URI.open(url).read) }
+  puts "Downloaded #{filename} from #{url}"
+
+  sh "unzip -o #{filename} -d tmp/aviutl2_sdk"
+  puts "Unzipped SDK to tmp/aviutl2_sdk"
+
+  files =
+    Dir
+      .glob("tmp/aviutl2_sdk/**/*")
+      .map { |f| f.sub("tmp/aviutl2_sdk/", "") }
+      .to_set
+
+  if files != expected_files
+    missing_files = expected_files - files
+    extra_files = files - expected_files
+    raise "SDK structure has changed! Missing files: #{missing_files.to_a.join(", ")}. Extra files: #{extra_files.to_a.join(", ")}."
+  end
+  puts "SDK structure is valid. All expected files are present, and no unexpected files found."
+end
+
+task :convert_description do
+  lines = [File.read("./base_readme.md")]
+  changelog_lines = [File.read("./base_changelog.md")]
+  original = File.read("./tmp/aviutl2_sdk/aviutl2_plugin_sdk.txt")
+  sections = original.gsub("\r\n", "\n").split(/[-－] (.*) [-－]/)
+
+  # タイトル
+  h1 = sections.shift
+  h1.strip!
+  unless (h1_match = h1.match(/(-+)\n +(.+) *\n\1/))
+    raise "Invalid format: expected header with dashes"
+  end
+  h1_content = h1_match[2]
+  lines << "# #{h1_content}"
+  lines << ""
+
+  sections.each_slice(2) do |raw_heading, raw_content|
+    heading = raw_heading.strip
+    content = raw_content.dedent.strip
+    next if heading.empty? || content.empty?
+
+    content.gsub!(/^○/m, "- ")
+
+    if heading == "更新履歴"
+      content
+        .split(/\[(\d{4}\/\d{1,2}\/\d{1,2})\]/)
+        .drop(1)
+        .each_slice(2) do |date, change|
+          date.strip!
+          change.strip!
+          next if date.empty? || change.empty?
+
+          changelog_lines << "## #{date}"
+          changelog_lines << change
+          changelog_lines << ""
+        end
+    else
+      lines << "## #{heading}"
+      lines << content
+      lines << ""
+    end
+  end
+
+  unless changelog_lines.any? { |line| line.start_with?("## ") }
+    raise "No changelog found in the SDK description."
+  end
+
+  write_and_format("../README.md", lines.join("\n"))
+  write_and_format("../CHANGELOG.md", changelog_lines.join("\n"))
+end
+
+def reencode(file_path, from_encoding, to_encoding)
+  content = File.read(file_path, encoding: from_encoding)
+  content.gsub!(/\r\n/, "\n") # Normalize line endings
+  File.write(file_path, content.encode(to_encoding))
+  puts "Re-encoded #{file_path} from #{from_encoding} to #{to_encoding}"
+end
+
+def write_and_format(file_path, content)
+  File.write(file_path, content)
+  sh "node_modules/.bin/prettier --write #{file_path}"
+  puts "Wrote and formatted #{file_path}"
+end
+
+class String
+  def dedent
+    lines = self.lines.map(&:chomp)
+    min_indent = lines.reject(&:empty?).map { |line| line[/^\s*/].size }.min
+    lines.map { |line| line[min_indent..-1] }.join("\n")
+  end
+end
+
+task :copy_and_reencode do
+  map = {
+    "license.txt" => "license.txt",
+    "input2.h" => "include/aviutl2_sdk/input2.h",
+    "output2.h" => "include/aviutl2_sdk/output2.h",
+    "AviReader.cpp" => "examples/AviReader.cpp",
+    "AviSaver.cpp" => "examples/AviSaver.cpp"
+  }
+
+  map.each do |src, dest|
+    src_path = "tmp/aviutl2_sdk/#{src}"
+    dest_path = "../#{dest}"
+
+    mkdir_p(File.dirname(dest_path))
+    cp(src_path, dest_path)
+    puts "Copied #{src} to #{dest}"
+
+    if src.end_with?(".h")
+      reencode(dest_path, "Shift_JIS", "UTF-8")
+    elsif src.end_with?(".cpp")
+      reencode(dest_path, "Shift_JIS", "UTF-8")
+    end
+  end
+end

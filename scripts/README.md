@@ -6,8 +6,8 @@ AviUtl2 SDKをいい感じにするスクリプト。
 ## 相違点
 
 - `aviutl2_plugin_sdk.txt`は`README.md`と`CHANGELOG.md`に分割されています。
-- ヘッダーファイルはinclude/aviutl2_sdk/に移動されています。
-- サンプルプラグインは`./examples/`に移動されています。
+- ヘッダーファイルは`include/aviutl2_sdk/`に移動されています。
+- サンプルプラグインは`examples/`に移動されています。
 - すべてのファイルがUTF-8 LFに変換されています。
 
 ## ライセンス

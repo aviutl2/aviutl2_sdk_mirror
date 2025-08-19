@@ -2,15 +2,7 @@
 
 AviUtl2 SDKのミラーです。
 毎日0時に自動で更新されます。
-
-本家と違い、以下の点が異なります：
-
-- `aviutl2_plugin_sdk.txt`は`README.md`と`CHANGELOG.md`に分割されています。
-- `{input2,output2}.h`ファイルは`include/aviutl2_sdk/`に移動されています。
-- `{AviReader,AviSaver}.cpp`は`examples/`に移動されています。
-- すべてのファイルがUTF-8 LFに変換されています。
-
-更新スクリプトは[./scripts/Rakefile](./scripts/Rakefile)を参照してください。
+更新スクリプトや変更点は[./scripts](./scripts)ディレクトリを参照してください。
 
 > [!WARNING]
 > これは有志による非公式のミラーです。
@@ -29,10 +21,10 @@ AviUtl ExEdit2に追加することが出来ます。
 
 ## プラグインの種類
 
-- 入力プラグイン (.aui2)\
+- 入力プラグイン (.aui2)  
    他のファイル形式を読み込むプラグインです。
 
-- 出力プラグイン (.auo2)\
+- 出力プラグイン (.auo2)  
    他のファイル形式に出力するプラグインです。
 
 ※現状は入力、出力プラグインのみの対応となります。
@@ -42,10 +34,10 @@ AviUtl ExEdit2に追加することが出来ます。
 各種サンプルプラグインのソースを付属していますので
 作成するときの参考にしてみてください。
 
-- AviReader\
+- AviReader  
    AVIファイルを読み込むプラグインです。
 
-- AviSaver\
+- AviSaver  
    AVIファイルで出力するプラグインです。
 
 ## 使用上の注意

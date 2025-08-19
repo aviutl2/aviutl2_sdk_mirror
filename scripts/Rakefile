@@ -33,8 +33,15 @@ task :download_sdk do
 
   url = "https://spring-fragrance.mints.ne.jp/aviutl/aviutl2_sdk.zip"
   filename = "tmp/aviutl2_sdk.zip"
-  File.open(filename, "wb") { |file| file.write(URI.open(url).read) }
-  puts "Downloaded #{filename} from #{url}"
+  puts "Downloading SDK from #{url} to #{filename}"
+  File.open(filename, "wb") do |file|
+    URI.open(
+      url,
+      "User-Agent" =>
+        "Ruby/#{RUBY_VERSION} (#{RUBY_PLATFORM}) aviutl2_sdk_mirror, https://github.com/sevenc-nanashi/aviutl2_sdk_mirror"
+    ) { |content| IO.copy_stream(content, file) }
+  end
+  puts "Downloaded SDK to #{filename}"
 
   sh "unzip -o #{filename} -d tmp/aviutl2_sdk"
   puts "Unzipped SDK to tmp/aviutl2_sdk"

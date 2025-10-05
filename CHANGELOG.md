@@ -1,5 +1,10 @@
 # 変更履歴
 
+## 2025/10/5
+
+- [aui2][auo2] DLL初期化終了時の関数定義(InitializePlugin,UninitializePlugin)を追加
+- [auf2] フィルタプラグインのサンプルを追加
+
 ## 2025/8/16
 
 - [aui2] マルチトラック対応用の関数(func_set_track)を追加

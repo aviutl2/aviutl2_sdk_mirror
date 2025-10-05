@@ -24,8 +24,11 @@ expected_files = %w[
   license.txt
   input2.h
   output2.h
+  filter2.h
   AviReader.cpp
   AviSaver.cpp
+  MediaFilter.cpp
+  MediaObject.cpp
 ].to_set
 
 task :download_sdk do
@@ -147,8 +150,11 @@ task :copy_and_reencode do
     "license.txt" => "license.txt",
     "input2.h" => "include/aviutl2_sdk/input2.h",
     "output2.h" => "include/aviutl2_sdk/output2.h",
+    "filter2.h" => "include/aviutl2_sdk/filter2.h",
     "AviReader.cpp" => "examples/AviReader.cpp",
-    "AviSaver.cpp" => "examples/AviSaver.cpp"
+    "AviSaver.cpp" => "examples/AviSaver.cpp",
+    "MediaFilter.cpp" => "examples/MediaFilter.cpp",
+    "MediaObject.cpp" => "examples/MediaObject.cpp"
   }
 
   map.each do |src, dest|

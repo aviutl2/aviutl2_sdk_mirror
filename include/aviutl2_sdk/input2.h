@@ -7,8 +7,8 @@
 // 画像フォーマットはRGB24bit,RGBA32bit,PA64,HF64,YUY2,YC48が対応しています
 // 音声フォーマットはPCM16bit,PCM(float)32bitが対応しています
 // ※PA64はDXGI_FORMAT_R16G16B16A16_UNORM(乗算済みα)です
-// ※HF64はDXGI_FORMAT_R16G16B16A16_FLOAT(乗算済みα)です
-// ※YC48は互換対応の旧内部フォーマットです 
+// ※HF64はDXGI_FORMAT_R16G16B16A16_FLOAT(乗算済みα)です(内部フォーマット)
+// ※YC48は互換対応のフォーマットです
 struct INPUT_INFO {
 	int	flag;					// フラグ
 	static constexpr int FLAG_VIDEO = 1;			// 画像データあり
@@ -31,7 +31,9 @@ struct INPUT_PLUGIN_TABLE {
 	int flag;					// フラグ
 	static constexpr int FLAG_VIDEO = 1;		// 画像をサポートする
 	static constexpr int FLAG_AUDIO = 2;		// 音声をサポートする
-	static constexpr int FLAG_CONCURRENT = 16;	// 画像・音声データの同時取得をサポートする ※画像と音声取得関数が同時に呼ばれる
+	static constexpr int FLAG_CONCURRENT = 16;	// データの同時取得をサポートする
+												// ※同一ハンドルで画像と音声の取得関数が同時に呼ばれる
+												// ※異なるハンドルで各関数が同時に呼ばれる
 	static constexpr int FLAG_MULTI_TRACK = 32;	// マルチトラックをサポートする ※func_set_track()が呼ばれるようになる
 	LPCWSTR name;				// プラグインの名前
 	LPCWSTR filefilter;			// 入力ファイルフィルタ

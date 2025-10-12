@@ -25,10 +25,13 @@ expected_files = %w[
   input2.h
   output2.h
   filter2.h
+  module2.h
   AviReader.cpp
   AviSaver.cpp
   MediaFilter.cpp
   MediaObject.cpp
+  ScriptModule.cpp
+  ScriptModuleSample.obj2
 ].to_set
 
 task :download_sdk do
@@ -151,10 +154,13 @@ task :copy_and_reencode do
     "input2.h" => "include/aviutl2_sdk/input2.h",
     "output2.h" => "include/aviutl2_sdk/output2.h",
     "filter2.h" => "include/aviutl2_sdk/filter2.h",
+    "module2.h" => "include/aviutl2_sdk/module2.h",
     "AviReader.cpp" => "examples/AviReader.cpp",
     "AviSaver.cpp" => "examples/AviSaver.cpp",
     "MediaFilter.cpp" => "examples/MediaFilter.cpp",
-    "MediaObject.cpp" => "examples/MediaObject.cpp"
+    "MediaObject.cpp" => "examples/MediaObject.cpp",
+    "ScriptModule.cpp" => "examples/ScriptModule.cpp",
+    "ScriptModuleSample.obj2" => "examples/ScriptModuleSample.obj2",
   }
 
   map.each do |src, dest|

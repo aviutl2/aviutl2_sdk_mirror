@@ -1,5 +1,9 @@
 # 変更履歴
 
+## 2025/10/12
+
+- [mod2] スクリプトモジュールのサンプルを追加
+
 ## 2025/10/5
 
 - [aui2][auo2] DLL初期化終了時の関数定義(InitializePlugin,UninitializePlugin)を追加

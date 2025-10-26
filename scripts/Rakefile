@@ -26,12 +26,14 @@ expected_files = %w[
   output2.h
   filter2.h
   module2.h
+  plugin2.h
   AviReader.cpp
   AviSaver.cpp
   MediaFilter.cpp
   MediaObject.cpp
   ScriptModule.cpp
   ScriptModuleSample.obj2
+  WindowClient.cpp
 ].to_set
 
 task :download_sdk do
@@ -61,7 +63,11 @@ task :download_sdk do
   if files != expected_files
     missing_files = expected_files - files
     extra_files = files - expected_files
-    raise "SDK structure has changed! Missing files: #{missing_files.to_a.join(", ")}. Extra files: #{extra_files.to_a.join(", ")}."
+    raise "SDK structure has changed! Missing files: #{
+            missing_files.empty? ? "none" : missing_files.to_a.join(", ")
+          }. Extra files: #{
+            extra_files.empty? ? "none" : extra_files.to_a.join(", ")
+          }."
   end
   puts "SDK structure is valid. All expected files are present, and no unexpected files found."
 end
@@ -155,12 +161,14 @@ task :copy_and_reencode do
     "output2.h" => "include/aviutl2_sdk/output2.h",
     "filter2.h" => "include/aviutl2_sdk/filter2.h",
     "module2.h" => "include/aviutl2_sdk/module2.h",
+    "plugin2.h" => "include/aviutl2_sdk/plugin2.h",
     "AviReader.cpp" => "examples/AviReader.cpp",
     "AviSaver.cpp" => "examples/AviSaver.cpp",
     "MediaFilter.cpp" => "examples/MediaFilter.cpp",
     "MediaObject.cpp" => "examples/MediaObject.cpp",
     "ScriptModule.cpp" => "examples/ScriptModule.cpp",
     "ScriptModuleSample.obj2" => "examples/ScriptModuleSample.obj2",
+    "WindowClient.cpp" => "examples/WindowClient.cpp"
   }
 
   map.each do |src, dest|

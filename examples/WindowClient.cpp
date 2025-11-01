@@ -65,7 +65,7 @@ LRESULT CALLBACK wnd_proc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 //---------------------------------------------------------------------
 //	プラグイン登録関数
 //---------------------------------------------------------------------
-EXTERN_C __declspec(dllexport) void RegisterPlugin(HOST_APP_TABLE *host) {
+EXTERN_C __declspec(dllexport) void RegisterPlugin(HOST_APP_TABLE* host) {
 	// プラグインの情報を設定
 	host->set_plugin_information(L"Sample Window Client version 2.00 By ＫＥＮくん");
 

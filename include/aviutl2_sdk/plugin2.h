@@ -10,17 +10,24 @@ struct SCRIPT_MODULE_TABLE;
 // オブジェクトハンドル
 typedef void* OBJECT_HANDLE;
 
-// オブジェクトフレーム情報構造体
-// オブジェクトフレーム情報ではフレーム番号、レイヤー番号が0からの番号になります ※UI表示と異なります
-struct OBJECT_FRAME_INFO {
+// レイヤー・フレーム情報構造体
+// フレーム番号、レイヤー番号が0からの番号になります ※UI表示と異なります
+struct OBJECT_LAYER_FRAME {
+	int layer;	// レイヤー番号
 	int start;	// 開始フレーム番号
 	int end;	// 終了フレーム番号
+};
+
+// 冗長なので後で廃止します
+struct DEPRECATED_OBJECT_FRAME_INFO {
+	int start;
+	int end;
 };
 
 //----------------------------------------------------------------------------------
 
 // 編集情報構造体
-// 編集情報ではフレーム番号、レイヤー番号が0からの番号になります ※UI表示と異なります
+// フレーム番号、レイヤー番号が0からの番号になります ※UI表示と異なります
 struct EDIT_INFO {
 	int width, height;	// シーンの解像度
 	int rate, scale;	// シーンのフレームレート
@@ -32,7 +39,8 @@ struct EDIT_INFO {
 };
 
 // 編集セクション構造体
-// 編集セクションではフレーム番号、レイヤー番号が0からの番号になります ※UI表示と異なります
+// メニュー選択やプロジェクト編集のコールバック関数内で利用出来ます
+// フレーム番号、レイヤー番号が0からの番号になります ※UI表示と異なります
 struct EDIT_SECTION {
 	// 編集情報
 	EDIT_INFO* info;
@@ -53,10 +61,57 @@ struct EDIT_SECTION {
 	// 戻り値	: 検索したオブジェクトのハンドル (見つからない場合はnullptrを返却)
 	OBJECT_HANDLE (*find_object)(int layer, int frame);
 
-	// オブジェクトのフレーム情報を取得します
+	// 冗長なので後で廃止します
+	DEPRECATED_OBJECT_FRAME_INFO (*deprecated_get_object_frame_info)(OBJECT_HANDLE object);
+
+	// オブジェクトのレイヤー・フレーム情報を取得します
 	// object	: オブジェクトのハンドル
-	// 戻り値	: オブジェクトフレーム情報
-	OBJECT_FRAME_INFO (*get_object_frame_info)(OBJECT_HANDLE object);
+	// 戻り値	: オブジェクトのレイヤー・フレーム情報
+	OBJECT_LAYER_FRAME (*get_object_layer_frame)(OBJECT_HANDLE object);
+
+	// オブジェクトのエイリアスデータを取得します
+	// object	: オブジェクトのハンドル
+	// 戻り値	: オブジェクトエイリアスデータ(UTF-8)へのポインタ (取得出来ない場合はnullptrを返却)
+	// 			  オブジェクトエイリアスファイルと同じフォーマットになります
+	//			  ※次に文字列返却の関数を使うかコールバック処理の終了まで有効
+	LPCSTR (*get_object_alias)(OBJECT_HANDLE object);
+
+	// オブジェクトの設定項目の値を文字列で取得します
+	// object	: オブジェクトのハンドル
+	// effect	: 対象のエフェクト名 (エイリアスファイルのeffect.nameの値)
+	// item		: 対象の設定項目の名称 (エイリアスファイルのキーの名称)
+	// 戻り値	: 取得した設定値(UTF8)へのポインタ (取得出来ない場合はnullptrを返却)
+	//			  エイリアスファイルの設定値と同じフォーマットになります
+	//			  ※次に文字列返却の関数を使うかコールバック処理の終了まで有効
+	LPCSTR (*get_object_item_value)(OBJECT_HANDLE object, LPCWSTR effect, LPCWSTR item);
+
+	// オブジェクトの設定項目の値を文字列で設定します
+	// object	: オブジェクトのハンドル
+	// effect	: 対象のエフェクト名 (エイリアスファイルのeffect.nameの値)
+	// item		: 対象の設定項目の名称 (エイリアスファイルのキーの名称)
+	// value	: 設定値(UTF8)
+	//			  エイリアスファイルの設定値と同じフォーマットになります
+	// 戻り値	: 設定出来た場合はtrue (対象が見つからない場合は失敗します)
+	bool (*set_object_item_value)(OBJECT_HANDLE object, LPCWSTR effect, LPCWSTR item, LPCSTR value);
+
+	// オブジェクトを移動します
+	// object	: オブジェクトのハンドル
+	// layer	: 移動先のレイヤー番号
+	// frame	: 移動先のフレーム番号
+	// 戻り値	: 移動した場合はtrue (移動先にオブジェクトが存在する場合は失敗します)
+	bool (*move_object)(OBJECT_HANDLE object, int layer, int frame);
+
+	// オブジェクトを削除します
+	// object	: オブジェクトのハンドル
+	void (*delete_object)(OBJECT_HANDLE object);
+
+	// オブジェクト設定ウィンドウで選択されているオブジェクトのハンドルを取得します
+	// 戻り値	: オブジェクトのハンドル (未選択の場合はnullptrを返却)　
+	OBJECT_HANDLE(*get_focus_object)();
+
+	// オブジェクト設定ウィンドウで選択するオブジェクトを設定します (コールバック処理の終了時に設定されます)
+	// object	: オブジェクトのハンドル
+	void (*set_focus_object)(OBJECT_HANDLE object);
 
 };
 
@@ -70,6 +125,40 @@ struct EDIT_HANDLE {
 	// 戻り値			: trueなら成功
 	//					  編集が出来ない場合(出力中等)に失敗します
 	bool (*call_edit_section)(void (*func_proc_edit)(EDIT_SECTION* edit));
+
+};
+
+//----------------------------------------------------------------------------------
+
+// プロジェクトファイル構造体
+// プロジェクトファイルのロード、セーブ時のコールバック関数内で利用出来ます
+// プロジェクトの保存データはプラグイン毎のデータ領域になります
+struct PROJECT_FILE {
+	// プロジェクトに保存されている文字列(UTF-8)を取得します
+	// key		: キー名(UTF-8)
+	// 戻り値	: 取得した文字列へのポインタ (未設定の場合はnullptr)
+	LPCSTR (*get_param_string)(LPCSTR key);
+
+	// プロジェクトに文字列(UTF-8)を保存します
+	// key		: キー名(UTF-8)
+	// value	: 保存する文字列(UTF-8)
+	void (*set_param_string)(LPCSTR key, LPCSTR value);
+
+	// プロジェクトに保存されているバイナリデータを取得します
+	// key		: キー名(UTF-8)
+	// data		: 取得するデータの格納先へのポインタ
+	// size		: 取得するデータのサイズ (保存されているサイズと異なる場合は失敗します)
+	// 戻り値	: 正しく取得出来た場合はtrue
+	bool (*get_param_binary)(LPCSTR key, void* data, int size);
+
+	// プロジェクトにバイナリデータを保存します
+	// key		: キー名(UTF-8)
+	// data		: 保存するデータへのポインタ
+	// size		: 保存するデータのサイズ (4096バイト以下)
+	void (*set_param_binary)(LPCSTR key, void* data, int size);
+
+	// プロジェクトに保存されているデータを全て削除します
+	void (*clear_params)();
 
 };
 
@@ -116,5 +205,13 @@ struct HOST_APP_TABLE {
 	// プロジェクトデータ編集用のハンドルを取得します
 	// 戻り値	: 編集ハンドル
 	EDIT_HANDLE* (*create_edit_handle)();
+
+	// プロジェクトファイルをロードした直後に呼ばれる関数を登録する ※プロジェクトの初期化時にも呼ばれます
+	// func_project_load	: プロジェクトファイルのロード時のコールバック関数
+	void (*register_project_load_handler)(void (*func_project_load)(PROJECT_FILE* project));
+
+	// プロジェクトファイルをセーブする直前に呼ばれる関数を登録する
+	// func_project_save	: プロジェクトファイルのセーブ時のコールバック関数
+	void (*register_project_save_handler)(void (*func_project_save)(PROJECT_FILE* project));
 
 };

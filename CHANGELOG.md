@@ -1,5 +1,11 @@
 # 変更履歴
 
+## 2025/11/2
+
+- [aux2] get_object_item_value(),set_object_item_value()のエフェクト指定方法を追加
+- [aux2] EDIT_SECTIONにoutput_log()を追加
+- [auf2] OBJECT_INFOにeffect_idを追加
+
 ## 2025/11/1
 
 - [aux2] プロジェクトファイルの独自データ保存向けの関数を追加

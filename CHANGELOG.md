@@ -1,5 +1,12 @@
 # 変更履歴
 
+## 2025/11/8
+
+- [aui2][auo2][auf2][mod2][aux2] ログ出力機能の関数定義(InitializeLogger)を追加
+- [auf2] FILTER_ITEM_DATAを追加
+- [aux2] HOST_APP_TABLEにregister_layer_menu(),register_object_menu()を追加
+- [aux2] EDIT_SECTIONにget_selected_object(),get_selected_object_num()を追加
+
 ## 2025/11/2
 
 - [aux2] get_object_item_value(),set_object_item_value()のエフェクト指定方法を追加

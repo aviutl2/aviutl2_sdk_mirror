@@ -3,6 +3,22 @@
 //	By ＫＥＮくん
 //----------------------------------------------------------------------------------
 
+//	スクリプトモジュールは下記の関数を外部公開すると呼び出されます
+//
+//	スクリプトモジュール構造体のポインタを渡す関数 (必須)
+//		SCRIPT_MODULE_TABLE* GetScriptModuleTable(void)
+// 
+//	プラグインDLL初期化関数 (任意)
+//		bool InitializePlugin(DWORD version) ※versionは本体のバージョン番号
+// 
+//	プラグインDLL終了関数 (任意)
+//		void UninitializePlugin()
+// 
+//	ログ出力機能初期化関数 (任意)
+//		void InitializeLogger(LOG_HANDLE* logger)
+
+//----------------------------------------------------------------------------------
+
 // スクリプトモジュール引数構造体
 struct SCRIPT_MODULE_PARAM {
 	// 引数の数を取得する

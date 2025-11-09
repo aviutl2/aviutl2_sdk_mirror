@@ -1,5 +1,9 @@
 # 変更履歴
 
+## 2025/11/9
+
+- [mod2] get_param_table_boolean()を追加
+
 ## 2025/11/8
 
 - [aui2][auo2][auf2][mod2][aux2] ログ出力機能の関数定義(InitializeLogger)を追加

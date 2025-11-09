@@ -14,7 +14,7 @@
 //	プラグインDLL終了関数 (任意)
 //		void UninitializePlugin()
 // 
-//	ログ出力機能初期化関数 (任意)
+//	ログ出力機能初期化関数 (任意) ※logger2.h
 //		void InitializeLogger(LOG_HANDLE* logger)
 
 //----------------------------------------------------------------------------------
@@ -248,13 +248,13 @@ struct HOST_APP_TABLE {
 	void (*register_project_save_handler)(void (*func_project_save)(PROJECT_FILE* project));
 
 	// レイヤーメニューを登録する (レイヤー編集でオブジェクト未選択時の右クリックメニューに追加されます)
-	// name				: レイヤーメニューの名称
-	// func_proc_export	: レイヤーメニュー選択時のコールバック関数
+	// name					: レイヤーメニューの名称
+	// func_proc_layer_menu	: レイヤーメニュー選択時のコールバック関数
 	void (*register_layer_menu)(LPCWSTR name, void (*func_proc_layer_menu)(EDIT_SECTION* edit));
 
 	// オブジェクトメニューを登録する (レイヤー編集でオブジェクト選択時の右クリックメニューに追加されます)
-	// name				: オブジェクトメニューの名称
-	// func_proc_export	: オブジェクトメニュー選択時のコールバック関数
+	// name						: オブジェクトメニューの名称
+	// func_proc_object_menu	: オブジェクトメニュー選択時のコールバック関数
 	void (*register_object_menu)(LPCWSTR name, void (*func_proc_object_menu)(EDIT_SECTION* edit));
 
 };

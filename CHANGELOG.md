@@ -1,5 +1,13 @@
 # 変更履歴
 
+## 2025/11/22
+
+- [auf2] FILTER_PROC_VIDEOにget_image_texture2d(),get_framebuffer_texture2d()を追加
+- [aux2] EDIT_SECTIONにcount_object_effect()を追加
+- [aux2] EDIT_HANDLEにcall_edit_section_param()を追加
+- [auf2] メディアオブジェクトのサンプルフィルタを更新
+- [aux2] ウィンドウクライアントのサンプルプラグインを更新
+
 ## 2025/11/9
 
 - [mod2] get_param_table_boolean()を追加

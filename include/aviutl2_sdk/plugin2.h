@@ -35,12 +35,6 @@ struct OBJECT_LAYER_FRAME {
 	int end;	// 終了フレーム番号
 };
 
-// 冗長なので後で廃止します
-struct DEPRECATED_OBJECT_FRAME_INFO {
-	int start;
-	int end;
-};
-
 //----------------------------------------------------------------------------------
 
 // 編集情報構造体
@@ -78,8 +72,11 @@ struct EDIT_SECTION {
 	// 戻り値	: 検索したオブジェクトのハンドル (見つからない場合はnullptrを返却)
 	OBJECT_HANDLE (*find_object)(int layer, int frame);
 
-	// 冗長なので後で廃止します
-	DEPRECATED_OBJECT_FRAME_INFO (*deprecated_get_object_frame_info)(OBJECT_HANDLE object);
+	// オブジェクトに対象エフェクトが何個存在するかを取得します
+	// object	: オブジェクトのハンドル
+	// effect	: 対象のエフェクト名 (エイリアスファイルのeffect.nameの値)
+	// 戻り値	: 対象エフェクトの数 ※存在しない場合は0
+	int (*count_object_effect)(OBJECT_HANDLE object, LPCWSTR effect);
 
 	// オブジェクトのレイヤー・フレーム情報を取得します
 	// object	: オブジェクトのハンドル
@@ -158,6 +155,9 @@ struct EDIT_HANDLE {
 	// 戻り値			: trueなら成功
 	//					  編集が出来ない場合(出力中等)に失敗します
 	bool (*call_edit_section)(void (*func_proc_edit)(EDIT_SECTION* edit));
+
+	// call_edit_section()に引数paramを渡せるようにした関数です
+	bool (*call_edit_section_param)(void* param, void (*func_proc_edit)(void* param, EDIT_SECTION* edit));
 
 };
 

@@ -126,6 +126,9 @@ struct OBJECT_INFO {
 
 //----------------------------------------------------------------------------------
 
+// d3d11.h向けの前方宣言 ※includeしないで良いように定義
+struct ID3D11Texture2D;
+
 // 画像フィルタ処理用構造体
 struct FILTER_PROC_VIDEO {
 	// シーン情報
@@ -134,14 +137,24 @@ struct FILTER_PROC_VIDEO {
 	// オブジェクト情報
 	const OBJECT_INFO* object;
 
-	// 現在の画像のデータを取得する (VRAMからデータを取得します) 
+	// 現在のオブジェクトの画像データを取得する (VRAMからデータを取得します) 
 	// buffer		: 画像データの格納先へのポインタ
 	void (*get_image_data)(PIXEL_RGBA* buffer);
 
-	// 現在の画像のデータを設定します (VRAMへデータを書き込みます) 
-	// buffer		: 画像データへのポインタ
+	// 現在のオブジェクトの画像データを設定します (VRAMへデータを書き込みます) 
+	// buffer		: 画像データへのポインタ (nullptrの場合は初期データ無しで画像サイズを変更します)
 	// width,height	: 画像サイズ
 	void (*set_image_data)(PIXEL_RGBA* buffer, int width, int height);
+
+	// 現在のオブジェクトの画像データのポインタを取得する (ID3D11Texture2Dのポインタを取得します) 
+	// 戻り値		: オブジェクトの画像データへのポインタ
+	//				  ※現在の画像が変更(set_image_data)されるかフィルタ処理の終了まで有効
+	ID3D11Texture2D* (*get_image_texture2d)();
+
+	// 現在のフレームバッファの画像データのポインタを取得する (ID3D11Texture2Dのポインタを取得します) 
+	// 戻り値		: フレームバッファの画像データへのポインタ
+	//				  ※フィルタ処理の終了まで有効
+	ID3D11Texture2D* (*get_framebuffer_texture2d)();
 
 };
 
@@ -153,12 +166,12 @@ struct FILTER_PROC_AUDIO {
 	// オブジェクト情報
 	const OBJECT_INFO* object;
 
-	// 現在の音声のデータを取得する
+	// 現在のオブジェクトの音声データを取得する
 	// buffer		: 音声データの格納先へのポインタ ※音声データはPCM(float)32bit
 	// channel		: 音声データのチャンネル ( 0 = 左チャンネル / 1 = 右チャンネル )
 	void (*get_sample_data)(float* buffer, int channel);
 
-	// 現在の音声のデータを設定する
+	// 現在のオブジェクトの音声データを設定する
 	// buffer		: 音声データへのポインタ ※音声データはPCM(float)32bit
 	// channel		: 音声データのチャンネル ( 0 = 左チャンネル / 1 = 右チャンネル )
 	void (*set_sample_data)(float* buffer, int channel);

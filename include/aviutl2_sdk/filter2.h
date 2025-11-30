@@ -94,6 +94,16 @@ struct FILTER_ITEM_DATA {
 	T default_value;			// デフォルト値 (Tの定義でデフォルト値を指定しておく)
 };
 
+// 設定グループ項目構造体
+// 自身以降の設定項目をグループ化することが出来ます
+// 例：FILTER_ITEM_GROUP group = { L"座標" };
+struct FILTER_ITEM_GROUP {
+	FILTER_ITEM_GROUP(LPCWSTR name, bool default_visible = true) : name(name), default_visible(default_visible) {}
+	LPCWSTR type = L"group";	// 設定の種別
+	LPCWSTR name;				// 設定名
+	const bool default_visible;	// デフォルトの表示状態
+};
+
 //----------------------------------------------------------------------------------
 
 // RGBA32bit構造体

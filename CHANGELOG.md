@@ -1,5 +1,10 @@
 # 変更履歴
 
+## 2025/11/30
+
+- [auf2] FILTER_ITEM_GROUPを追加
+- [aux2] 登録したオブジェクトメニューが表示されないことがあるのを修正
+
 ## 2025/11/22
 
 - [auf2] FILTER_PROC_VIDEOにget_image_texture2d(),get_framebuffer_texture2d()を追加

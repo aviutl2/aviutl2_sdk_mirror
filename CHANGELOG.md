@@ -1,5 +1,15 @@
 # 変更履歴
 
+## 2025/12/2
+
+- [aux2] EDIT_HANDLEにget_edit_info()を追加
+- [aux2] EDIT_SECTIONにget_mouse_layer_frame(),pos_to_layer_frame()を追加
+- [aux2] EDIT_SECTIONにis_support_media_file(),get_media_info()を追加
+- [aux2] EDIT_SECTIONにcreate_object_from_media_file(),create_object()を追加
+- [aux2] EDIT_SECTIONにget_project_file()を追加
+- [aux2] PROJECT_FILEにget_project_file_path()を追加
+- [auf2] FILTER_ITEM_GROUPにグループの終端の設定方法を追加
+
 ## 2025/11/30
 
 - [auf2] FILTER_ITEM_GROUPを追加

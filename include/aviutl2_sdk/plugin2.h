@@ -23,6 +23,8 @@ struct INPUT_PLUGIN_TABLE;
 struct OUTPUT_PLUGIN_TABLE;
 struct FILTER_PLUGIN_TABLE;
 struct SCRIPT_MODULE_TABLE;
+struct EDIT_HANDLE;
+struct PROJECT_FILE;
 
 // オブジェクトハンドル
 typedef void* OBJECT_HANDLE;
@@ -33,6 +35,14 @@ struct OBJECT_LAYER_FRAME {
 	int layer;	// レイヤー番号
 	int start;	// 開始フレーム番号
 	int end;	// 終了フレーム番号
+};
+
+// メディア情報構造体
+struct MEDIA_INFO {
+	int video_track_num;	// Videoトラック数 ※0ならVideo無し
+	int audio_track_num;	// Audioトラック数 ※0ならAudio無し
+	double total_time;		// 総時間 ※静止画の場合は0
+	int width, height;		// 解像度
 };
 
 //----------------------------------------------------------------------------------
@@ -61,7 +71,8 @@ struct EDIT_SECTION {
 	//			  オブジェクトエイリアスファイルと同じフォーマットになります
 	// layer	: 作成するレイヤー番号
 	// frame	: 作成するフレーム番号
-	// length	: オブジェクトのフレーム数 ※エイリアスデータにフレーム情報が無い場合に利用します
+	// length	: オブジェクトのフレーム数 ※エイリアスデータにフレーム情報がある場合はフレーム情報から長さが設定されます
+	//			  フレーム数に0を指定した場合は長さと追加位置が自動調整されます
 	// 戻り値	: 作成したオブジェクトのハンドル (失敗した場合はnullptrを返却)
 	//			  既に存在するオブジェクトに重なったり、エイリアスデータが不正な場合に失敗します
 	OBJECT_HANDLE (*create_object_from_alias)(LPCSTR alias, int layer, int frame, int length);
@@ -131,8 +142,11 @@ struct EDIT_SECTION {
 	// object	: オブジェクトのハンドル
 	void (*set_focus_object)(OBJECT_HANDLE object);
 
-	// 冗長なので後で廃止します
-	void (*deprecated_output_log)(LPCWSTR message);
+	// プロジェクトファイルのポインタを取得します
+	// EDIT_HANDLE	: 編集ハンドル
+	// 戻り値		: プロジェクトファイル構造体へのポインタ
+	//				  ※コールバック処理の終了まで有効
+	PROJECT_FILE* (*get_project_file)(EDIT_HANDLE* edit);
 
 	// 選択中オブジェクトのハンドルを取得します
 	// index	: 選択中オブジェクトのインデックス(0〜)
@@ -142,6 +156,54 @@ struct EDIT_SECTION {
 	// 選択中オブジェクトの数を取得します
 	// 戻り値	: 選択中オブジェクトの数
 	int (*get_selected_object_num)();
+
+	// マウス座標のレイヤー・フレーム位置を取得します
+	// 最後のマウス移動のウィンドウメッセージの座標から計算します
+	// layer	: レイヤー番号の格納先
+	// frame	: フレーム番号の格納先
+	// 戻り値	: マウス座標がレイヤー編集上の場合はtrue
+	bool (*get_mouse_layer_frame)(int* layer, int* frame);
+
+	// 指定のスクリーン座標のレイヤー・フレーム位置を取得します
+	// x,y		: 対象のスクリーン座標
+	// layer	: レイヤー番号の格納先
+	// frame	: フレーム番号の格納先
+	// 戻り値	: スクリーン座標がレイヤー編集上の場合はtrue
+	bool (*pos_to_layer_frame)(int x, int y, int* layer, int* frame);
+
+	// 指定のメディアファイルがサポートされているかを確認します
+	// file		: メディアファイルのパス
+	// strict	: trueの場合は実際に読み込めるかを確認します
+	//			  falseの場合は拡張子が対応しているかを確認します
+	// 戻り値	: サポートされている場合はtrue
+	bool (*is_support_media_file)(LPCWSTR file, bool strict);
+
+	// 指定のメディアファイルの情報を取得します ※動画、音声、画像ファイル以外では取得出来ません
+	// file			: メディアファイルのパス
+	// info			: メディア情報の格納先へのポインタ
+	// info_size	: メディア情報の格納先のサイズ ※MEDIA_INFOと異なる場合はサイズ分のみ取得されます
+	// 戻り値		: 取得出来た場合はtrue
+	bool (*get_media_info)(LPCWSTR file, MEDIA_INFO* info, int info_size);
+
+	// 指定の位置にメディアファイルからオブジェクトを作成します
+	// file		: メディアファイルのパス
+	// layer	: 作成するレイヤー番号
+	// frame	: 作成するフレーム番号
+	// length	: オブジェクトのフレーム数
+	//			  フレーム数に0を指定した場合は長さと追加位置が自動調整されます
+	// 戻り値	: 作成したオブジェクトのハンドル (失敗した場合はnullptrを返却)
+	//			  既に存在するオブジェクトに重なったり、メディアファイルに対応していない場合は失敗します
+	OBJECT_HANDLE (*create_object_from_media_file)(LPCWSTR file, int layer, int frame, int length);
+
+	// 指定の位置にオブジェクトを作成します
+	// effect	: エフェクト名 (エイリアスファイルのeffect.nameの値)
+	// layer	: 作成するレイヤー番号
+	// frame	: 作成するフレーム番号
+	// length	: オブジェクトのフレーム数
+	//			  フレーム数に0を指定した場合は長さと追加位置が自動調整されます
+	// 戻り値	: 作成したオブジェクトのハンドル (失敗した場合はnullptrを返却)
+	//			  既に存在するオブジェクトに重なったり、指定エフェクトに対応していない場合は失敗します
+	OBJECT_HANDLE (*create_object)(LPCWSTR effect, int layer, int frame, int length);
 
 };
 
@@ -159,17 +221,24 @@ struct EDIT_HANDLE {
 	// call_edit_section()に引数paramを渡せるようにした関数です
 	bool (*call_edit_section_param)(void* param, void (*func_proc_edit)(void* param, EDIT_SECTION* edit));
 
+	// 編集情報を取得します
+	// 既に編集処理中(EDIT_SECTIONが引数のコールバック関数内等)の場合は利用出来ません ※デッドロックします
+	// info			: 編集情報の格納先へのポインタ
+	// info_size	: 編集情報の格納先のサイズ ※EDIT_INFOと異なる場合はサイズ分のみ取得されます
+	void (*get_edit_info)(EDIT_INFO* info, int info_size);
+
 };
 
 //----------------------------------------------------------------------------------
 
 // プロジェクトファイル構造体
-// プロジェクトファイルのロード、セーブ時のコールバック関数内で利用出来ます
+// プロジェクトファイルのロード、セーブのコールバックや編集のコールバック関数内で利用出来ます
 // プロジェクトの保存データはプラグイン毎のデータ領域になります
 struct PROJECT_FILE {
 	// プロジェクトに保存されている文字列(UTF-8)を取得します
 	// key		: キー名(UTF-8)
 	// 戻り値	: 取得した文字列へのポインタ (未設定の場合はnullptr)
+	//			  ※コールバック処理の終了まで有効
 	LPCSTR (*get_param_string)(LPCSTR key);
 
 	// プロジェクトに文字列(UTF-8)を保存します
@@ -192,6 +261,12 @@ struct PROJECT_FILE {
 
 	// プロジェクトに保存されているデータを全て削除します
 	void (*clear_params)();
+
+	// プロジェクトファイルのパスを取得します
+	// key		: キー名(UTF-8)
+	// 戻り値	: プロジェクトファイルパスへのポインタ (ファイルパスは未設定の場合があります)
+	//			  ※コールバック処理の終了まで有効
+	LPCWSTR (*get_project_file_path)();
 
 };
 

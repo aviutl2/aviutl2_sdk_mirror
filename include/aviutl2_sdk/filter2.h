@@ -96,6 +96,7 @@ struct FILTER_ITEM_DATA {
 
 // 設定グループ項目構造体
 // 自身以降の設定項目をグループ化することが出来ます
+// ※設定名を空にするとグループの終端を定義することが出来ます
 // 例：FILTER_ITEM_GROUP group = { L"座標" };
 struct FILTER_ITEM_GROUP {
 	FILTER_ITEM_GROUP(LPCWSTR name, bool default_visible = true) : name(name), default_visible(default_visible) {}

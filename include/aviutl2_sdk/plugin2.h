@@ -75,6 +75,7 @@ struct EDIT_SECTION {
 	//			  フレーム数に0を指定した場合は長さと追加位置が自動調整されます
 	// 戻り値	: 作成したオブジェクトのハンドル (失敗した場合はnullptrを返却)
 	//			  既に存在するオブジェクトに重なったり、エイリアスデータが不正な場合に失敗します
+	//			  複数オブジェクトのエイリアスデータの場合は先頭のオブジェクトになります
 	OBJECT_HANDLE (*create_object_from_alias)(LPCSTR alias, int layer, int frame, int length);
 
 	// 指定のフレーム番号以降にあるオブジェクトを検索します
@@ -205,6 +206,11 @@ struct EDIT_SECTION {
 	//			  既に存在するオブジェクトに重なったり、指定エフェクトに対応していない場合は失敗します
 	OBJECT_HANDLE (*create_object)(LPCWSTR effect, int layer, int frame, int length);
 
+	// 現在のレイヤー・フレーム位置を設定します ※設定出来る範囲に調整されます
+	// layer	: レイヤー番号
+	// frame	: フレーム番号
+	void (*set_cursor_layer_frame)(int layer, int frame);
+
 };
 
 // 編集ハンドル構造体
@@ -331,5 +337,10 @@ struct HOST_APP_TABLE {
 	// name						: オブジェクトメニューの名称
 	// func_proc_object_menu	: オブジェクトメニュー選択時のコールバック関数
 	void (*register_object_menu)(LPCWSTR name, void (*func_proc_object_menu)(EDIT_SECTION* edit));
+
+	// 設定メニューを登録する
+	// name				: 設定メニューの名称
+	// func_config		: 設定メニュー選択時のコールバック関数
+	void (*register_config_menu)(LPCWSTR name, void (*func_config)(HWND hwnd, HINSTANCE dll_hinst));
 
 };

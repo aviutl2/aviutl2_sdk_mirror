@@ -1,5 +1,11 @@
 # 変更履歴
 
+## 2025/12/6
+
+- [aux2] EDIT_SECTIONにset_cursor_layer_frame()を追加
+- [aux2] HOST_APP_TABLEにregister_config_menu()を追加
+- [aux2] create_object_from_alias()で複数オブジェクトのエイリアスデータを利用出来るようにした
+
 ## 2025/12/2
 
 - [aux2] EDIT_HANDLEにget_edit_info()を追加

@@ -57,6 +57,15 @@ struct EDIT_INFO {
 	int layer;			// 現在の選択レイヤー番号
 	int frame_max;		// オブジェクトが存在する最大のフレーム番号
 	int layer_max;		// オブジェクトが存在する最大のレイヤー番号
+	int display_frame_start;	// レイヤー編集で表示されているフレームの開始番号
+	int display_layer_start;	// レイヤー編集で表示されているレイヤーの開始番号
+	int display_frame_num;		// レイヤー編集で表示されているフレーム数 ※厳密ではないです
+	int display_layer_num;		// レイヤー編集で表示されているレイヤー数 ※厳密ではないです
+	int select_range_start;		// フレーム範囲選択の開始フレーム番号 ※未選択の場合は-1
+	int select_range_end;		// フレーム範囲選択の終了フレーム番号 ※未選択の場合は-1
+	float grid_bpm_tempo;		// グリッド(BPM)のテンポ
+	int grid_bpm_beat;			// グリッド(BPM)の拍子
+	float grid_bpm_offset;		// グリッド(BPM)の基準時間
 };
 
 // 編集セクション構造体
@@ -210,6 +219,33 @@ struct EDIT_SECTION {
 	// layer	: レイヤー番号
 	// frame	: フレーム番号
 	void (*set_cursor_layer_frame)(int layer, int frame);
+
+	// レイヤー編集のレイヤー・フレームの表示開始位置を設定します ※設定出来る範囲に調整されます
+	// layer	: 表示開始レイヤー番号
+	// frame	: 表示開始フレーム番号
+	void (*set_display_layer_frame)(int layer, int frame);
+
+	// フレーム範囲選択を設定します ※設定出来る範囲に調整されます
+	// start,end	: 開始終了フレーム番号
+	//				  開始終了フレームの両方に-1を指定すると選択を解除します
+	void (*set_select_range)(int start, int end);
+
+	// グリッド(BPM)を設定します
+	// tempo	: テンポ
+	// beat		: 拍子
+	// offset	: 基準時間
+	void (*set_grid_bpm)(float tempo, int beat, float offset);
+
+	// オブジェクト名を取得します
+	// object	: オブジェクトのハンドル
+	// 戻り値	: オブジェクト名へのポインタ (標準の名前の場合はnullptrを返却)　
+	//			  ※オブジェクトの編集をするかコールバック処理の終了まで有効
+	LPCWSTR (*get_object_name)(OBJECT_HANDLE object);
+
+	// オブジェクト名を設定します
+	// object	: オブジェクトのハンドル
+	// name		: オブジェクト名 (nullptrか空文字を指定すると標準の名前になります)　
+	void (*set_object_name)(OBJECT_HANDLE object, LPCWSTR name);
 
 };
 

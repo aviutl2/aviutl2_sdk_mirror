@@ -1,5 +1,11 @@
 # 変更履歴
 
+## 2025/12/7
+
+- [aux2] EDIT_INFOにレイヤー編集関連の情報を追加
+- [aux2] EDIT_SECTIONにset_display_layer_frame(),set_select_range(),set_grid_bpm()を追加
+- [aux2] EDIT_SECTIONにget_object_name(),set_object_name()を追加
+
 ## 2025/12/6
 
 - [aux2] EDIT_SECTIONにset_cursor_layer_frame()を追加

@@ -77,14 +77,14 @@ struct EDIT_SECTION {
 
 	// 指定の位置にオブジェクトエイリアスを作成します
 	// alias	: オブジェクトエイリアスデータ(UTF-8)へのポインタ
-	//			  オブジェクトエイリアスファイルと同じフォーマットになります
+	//			  オブジェクトエイリアスファイル(.object)と同じフォーマットになります
 	// layer	: 作成するレイヤー番号
 	// frame	: 作成するフレーム番号
 	// length	: オブジェクトのフレーム数 ※エイリアスデータにフレーム情報がある場合はフレーム情報から長さが設定されます
-	//			  フレーム数に0を指定した場合は長さと追加位置が自動調整されます
+	//			  フレーム数に0を指定した場合は長さや追加位置が自動調整されます
 	// 戻り値	: 作成したオブジェクトのハンドル (失敗した場合はnullptrを返却)
 	//			  既に存在するオブジェクトに重なったり、エイリアスデータが不正な場合に失敗します
-	//			  複数オブジェクトのエイリアスデータの場合は先頭のオブジェクトになります
+	//			  複数オブジェクトのエイリアスデータの場合は先頭のオブジェクトのハンドルが返却されます ※オブジェクトは全て作成されます
 	OBJECT_HANDLE (*create_object_from_alias)(LPCSTR alias, int layer, int frame, int length);
 
 	// 指定のフレーム番号以降にあるオブジェクトを検索します
@@ -200,7 +200,7 @@ struct EDIT_SECTION {
 	// layer	: 作成するレイヤー番号
 	// frame	: 作成するフレーム番号
 	// length	: オブジェクトのフレーム数
-	//			  フレーム数に0を指定した場合は長さと追加位置が自動調整されます
+	//			  フレーム数に0を指定した場合は長さや追加位置が自動調整されます
 	// 戻り値	: 作成したオブジェクトのハンドル (失敗した場合はnullptrを返却)
 	//			  既に存在するオブジェクトに重なったり、メディアファイルに対応していない場合は失敗します
 	OBJECT_HANDLE (*create_object_from_media_file)(LPCWSTR file, int layer, int frame, int length);
@@ -210,7 +210,7 @@ struct EDIT_SECTION {
 	// layer	: 作成するレイヤー番号
 	// frame	: 作成するフレーム番号
 	// length	: オブジェクトのフレーム数
-	//			  フレーム数に0を指定した場合は長さと追加位置が自動調整されます
+	//			  フレーム数に0を指定した場合は長さや追加位置が自動調整されます
 	// 戻り値	: 作成したオブジェクトのハンドル (失敗した場合はnullptrを返却)
 	//			  既に存在するオブジェクトに重なったり、指定エフェクトに対応していない場合は失敗します
 	OBJECT_HANDLE (*create_object)(LPCWSTR effect, int layer, int frame, int length);
@@ -378,5 +378,11 @@ struct HOST_APP_TABLE {
 	// name				: 設定メニューの名称
 	// func_config		: 設定メニュー選択時のコールバック関数
 	void (*register_config_menu)(LPCWSTR name, void (*func_config)(HWND hwnd, HINSTANCE dll_hinst));
+
+	// TODO: 今後対応予定 ※階層構造に改修が必要なので検討中
+	// 編集メニューを登録する
+	// name					: 編集メニューの名称
+	// func_proc_edit_menu	: 編集メニュー選択時のコールバック関数
+	//void (*register_edit_menu)(LPCWSTR name, void (*func_proc_edit_menu)(EDIT_SECTION* edit));
 
 };

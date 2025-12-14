@@ -197,7 +197,9 @@ struct FILTER_PLUGIN_TABLE {
 	static constexpr int FLAG_VIDEO = 1;	// 画像フィルタをサポートする
 	static constexpr int FLAG_AUDIO = 2;	// 音声フィルタをサポートする
 											// 画像と音声のフィルタ処理は別々のスレッドで処理されます
-	static constexpr int FLAG_INPUT = 4;	// オブジェクトの初期入力をする (メディアオブジェクトにする場合)
+	static constexpr int FLAG_INPUT = 4;	// メディアオブジェクトの初期入力をする (メディアオブジェクトにする場合)
+	static constexpr int FLAG_FILTER = 8;	// フィルタオブジェクトをサポートする (フィルタオブジェクトに対応する場合)
+											// フィルタオブジェクトの場合は画像サイズの変更が出来ません
 	LPCWSTR name;				// プラグインの名前
 	LPCWSTR label;				// ラベルの初期値 (nullptrならデフォルトのラベルになります)
 	LPCWSTR information;		// プラグインの情報

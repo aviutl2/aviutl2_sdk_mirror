@@ -1,5 +1,10 @@
 # 変更履歴
 
+## 2025/12/14
+
+- [aux2] set_cursor_layer_frame()が正しく反映されないことがあるのを修正
+- [auf2] FILTER_PLUGIN_TABLEにフィルタオブジェクトのサポートフラグを追加
+
 ## 2025/12/7
 
 - [aux2] EDIT_INFOにレイヤー編集関連の情報を追加

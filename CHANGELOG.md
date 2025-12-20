@@ -1,5 +1,10 @@
 # 変更履歴
 
+## 2025/12/20
+
+- [aux2] get_object_item_value(),set_object_item_value()が正しく取得反映されないことがあるのを修正
+- [aux2] HOST_APP_TABLEにregister_edit_menu(),register_clear_cache_handler()を追加
+
 ## 2025/12/14
 
 - [aux2] set_cursor_layer_frame()が正しく反映されないことがあるのを修正

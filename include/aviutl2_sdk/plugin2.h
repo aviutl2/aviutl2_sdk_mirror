@@ -375,14 +375,18 @@ struct HOST_APP_TABLE {
 	void (*register_object_menu)(LPCWSTR name, void (*func_proc_object_menu)(EDIT_SECTION* edit));
 
 	// 設定メニューを登録する
+	// 設定メニューの登録後にウィンドウクライアントを登録するとシステムメニューに「設定」が追加されます
 	// name				: 設定メニューの名称
 	// func_config		: 設定メニュー選択時のコールバック関数
 	void (*register_config_menu)(LPCWSTR name, void (*func_config)(HWND hwnd, HINSTANCE dll_hinst));
 
-	// TODO: 今後対応予定 ※階層構造に改修が必要なので検討中
 	// 編集メニューを登録する
-	// name					: 編集メニューの名称
+	// name					: 編集メニューの名称 ※名称に'\'を入れると表示を階層に出来ます
 	// func_proc_edit_menu	: 編集メニュー選択時のコールバック関数
-	//void (*register_edit_menu)(LPCWSTR name, void (*func_proc_edit_menu)(EDIT_SECTION* edit));
+	void (*register_edit_menu)(LPCWSTR name, void (*func_proc_edit_menu)(EDIT_SECTION* edit));
+
+	// キャッシュを破棄の操作時に呼ばれる関数を登録する
+	// func_proc_clear_cache	: キャッシュの破棄時のコールバック関数
+	void (*register_clear_cache_handler)(void (*func_proc_clear_cache)(EDIT_SECTION* edit));
 
 };

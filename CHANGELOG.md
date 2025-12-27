@@ -1,5 +1,14 @@
 # 変更履歴
 
+## 2025/12/27
+
+- [aux2] アプリ起動時のプロジェクト初期化時にregister_project_load_handler()が呼ばれないことがあるのを修正
+- [aux2] register_input_plugin()で登録した対応ファイルの拡張子の関連付けが反映されないのを修正
+- [aux2] HOST_APP_TABLEにregister_change_scene_handlerを追加
+- [aux2] EDIT_INFOにscene_idを追加
+- [auf2] FILTER_ITEM_BUTTONを追加
+- [auf2] OBJECT_INFOにフィルタオブジェクトかのフラグを追加
+
 ## 2025/12/20
 
 - [aux2] get_object_item_value(),set_object_item_value()が正しく取得反映されないことがあるのを修正

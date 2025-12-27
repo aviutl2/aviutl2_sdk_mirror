@@ -19,6 +19,8 @@
 
 //----------------------------------------------------------------------------------
 
+struct EDIT_SECTION;
+
 // トラックバー項目構造体
 // 例：FILTER_ITEM_TRACK track = { L"数値", 100.0, 0.0, 1000.0, 0.01 };
 struct FILTER_ITEM_TRACK {
@@ -105,6 +107,16 @@ struct FILTER_ITEM_GROUP {
 	const bool default_visible;	// デフォルトの表示状態
 };
 
+// ボタン項目構造体
+// ボタンを押すとコールバック関数が呼ばれます ※plugin2.hの編集のコールバック関数と同様な形になります
+// 例：FILTER_ITEM_BUTTON button = { L"初期化", [](EDIT_SECTION* edit) { /* ボタンを押した時の処理 */ } };
+struct FILTER_ITEM_BUTTON {
+	FILTER_ITEM_BUTTON(LPCWSTR name, void (*callback)(EDIT_SECTION* edit)) : name(name), callback(callback) {}
+	LPCWSTR type = L"button";			// 設定の種別
+	LPCWSTR name;						// 設定名
+	void (*callback)(EDIT_SECTION*);	// 設定名
+};
+
 //----------------------------------------------------------------------------------
 
 // RGBA32bit構造体
@@ -133,6 +145,9 @@ struct OBJECT_INFO {
 	int channel_num;		// オブジェクトの現在の音声チャンネル数 (音声フィルタのみ) ※通常2になります
 	int64_t effect_id;		// オブジェクトの内の対象エフェクトのID (アプリ起動毎の固有ID)
 							// ※処理対象のフィルタ効果、オブジェクト入出力の固有ID
+	int flag;				// フラグ
+	static constexpr int FLAG_FILTER_OBJECT = 1;	// フィルタオブジェクトか？
+	inline bool is_filter_object() const { return flag & FLAG_FILTER_OBJECT; }
 };
 
 //----------------------------------------------------------------------------------

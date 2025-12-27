@@ -66,6 +66,7 @@ struct EDIT_INFO {
 	float grid_bpm_tempo;		// グリッド(BPM)のテンポ
 	int grid_bpm_beat;			// グリッド(BPM)の拍子
 	float grid_bpm_offset;		// グリッド(BPM)の基準時間
+	int scene_id;		// シーンのID
 };
 
 // 編集セクション構造体
@@ -388,5 +389,9 @@ struct HOST_APP_TABLE {
 	// キャッシュを破棄の操作時に呼ばれる関数を登録する
 	// func_proc_clear_cache	: キャッシュの破棄時のコールバック関数
 	void (*register_clear_cache_handler)(void (*func_proc_clear_cache)(EDIT_SECTION* edit));
+
+	// シーンを変更した直後に呼ばれる関数を登録する ※シーンの設定情報が更新された時にも呼ばれます
+	// func_proc_change_scene	: シーン変更時のコールバック関数
+	void (*register_change_scene_handler)(void (*func_proc_change_scene)(EDIT_SECTION* edit));
 
 };

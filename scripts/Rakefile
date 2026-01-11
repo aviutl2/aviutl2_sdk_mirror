@@ -35,6 +35,7 @@ expected_files = %w[
   ScriptModule.cpp
   ScriptModuleSample.obj2
   WindowClient.cpp
+  English.MediaFilter.aul2
 ].to_set
 
 task :download_sdk do
@@ -170,7 +171,8 @@ task :copy_and_reencode do
     "MediaObject.cpp" => "examples/MediaObject.cpp",
     "ScriptModule.cpp" => "examples/ScriptModule.cpp",
     "ScriptModuleSample.obj2" => "examples/ScriptModuleSample.obj2",
-    "WindowClient.cpp" => "examples/WindowClient.cpp"
+    "WindowClient.cpp" => "examples/WindowClient.cpp",
+    "English.MediaFilter.aul2" => "examples/English.MediaFilter.aul2"
   }
 
   map.each do |src, dest|

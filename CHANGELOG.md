@@ -1,5 +1,11 @@
 # 変更履歴
 
+## 2026/1/11
+
+- [aux2] EDIT_HANDLEにrestart_host_app(),enum_effect_name()を追加
+- [auf2] FILTER_ITEM_STRING,FILTER_ITEM_TEXTを追加
+- [auf2] サンプルのフィルタプラグインに対応する言語ファイルを追加
+
 ## 2025/12/27
 
 - [aux2] アプリ起動時のプロジェクト初期化時にregister_project_load_handler()が呼ばれないことがあるのを修正

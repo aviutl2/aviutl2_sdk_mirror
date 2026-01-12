@@ -135,6 +135,15 @@ struct FILTER_ITEM_TEXT {
 	LPCWSTR value;				// 設定値 (フィルタ処理の呼び出し時に現在の値のポインタに更新されます)
 };
 
+// フォルダ選択項目構造体
+// 例：FILTER_ITEM_FOLDER folder = { L"フォルダ", L"" };
+struct FILTER_ITEM_FOLDER {
+	FILTER_ITEM_FOLDER(LPCWSTR name, LPCWSTR value) : name(name), value(value) {}
+	LPCWSTR type = L"folder";	// 設定の種別
+	LPCWSTR name;				// 設定名
+	LPCWSTR value;				// 設定値 (フィルタ処理の呼び出し時に現在の値のポインタに更新されます)
+};
+
 //----------------------------------------------------------------------------------
 
 // RGBA32bit構造体

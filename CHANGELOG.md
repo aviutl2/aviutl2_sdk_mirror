@@ -1,5 +1,9 @@
 # 変更履歴
 
+## 2026/1/12
+
+- [auf2] FILTER_ITEM_FOLDERを追加
+
 ## 2026/1/11
 
 - [aux2] EDIT_HANDLEにrestart_host_app(),enum_effect_name()を追加

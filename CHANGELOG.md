@@ -1,5 +1,13 @@
 # 変更履歴
 
+## 2026/1/25
+
+- [aui2][auo2][auf2][mod2][aux2] 設定関連機能の関数定義(InitializeConfig)を追加
+- [aux2] EDIT_HANDLEにenum_module_info()を追加
+  ログ出力機能の文字制限をLOG_HANDLEのコメントに追記
+  プラグインの配置場所をPluginフォルダの一つ下のフォルダも対象とするようにした
+  プラグイン・スクリプト等を纏めてインストールするパッケージファイルの説明を追加
+
 ## 2026/1/12
 
 - [auf2] FILTER_ITEM_FOLDERを追加

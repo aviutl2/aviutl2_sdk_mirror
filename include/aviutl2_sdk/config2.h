@@ -42,7 +42,7 @@ struct CONFIG_HANDLE {
 	//			  ※次にこの関数を呼び出すまで有効
 	FONT_INFO* (*get_font_info)(CONFIG_HANDLE* handle, LPCSTR key);
 
-	// 設定ファイルで定義されている色コードを取得します
+	// 設定ファイルで定義されている色コードを取得します ※複数色の場合は最初の色が取得されます
 	// key		: 設定ファイル(style.conf)の[Color]のキー名
 	// 戻り値	: 定義されている色コードの値 (取得出来ない場合は0が返却されます)
 	int (*get_color_code)(CONFIG_HANDLE* handle, LPCSTR key);
@@ -51,5 +51,11 @@ struct CONFIG_HANDLE {
 	// key		: 設定ファイル(style.conf)の[Layout]のキー名
 	// 戻り値	: 定義されているサイズ (取得出来ない場合は0が返却されます)
 	int (*get_layout_size)(CONFIG_HANDLE* handle, LPCSTR key);
+
+	// 設定ファイルで定義されている色コードを取得します
+	// key		: 設定ファイル(style.conf)の[Color]のキー名
+	// index	: 取得する色のインデックス (-1を指定すると色の数を返却します)
+	// 戻り値	: 定義されている色コードの値 (取得出来ない場合は0が返却されます)
+	int (*get_color_code_index)(CONFIG_HANDLE* handle, LPCSTR key, int index);
 
 };

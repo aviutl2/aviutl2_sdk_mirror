@@ -104,7 +104,7 @@ task :convert_description do
     is_in_bullet_list = false
     code_block_level = nil
     content = content.lines.map do |line|
-      line.rstrip!
+      line.chomp!
       line << "\n"
       if line.match(/^- /)
         is_in_bullet_list = true

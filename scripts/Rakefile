@@ -99,11 +99,41 @@ task :convert_description do
 
     content.gsub!(/^○(.+)$/, "- \\1  ")
     content.gsub!(/。$/, "。  ")
+    content.gsub!("[", "\\[")
+
+    is_in_bullet_list = false
+    code_block_level = nil
+    content = content.lines.map do |line|
+      line.rstrip!
+      line << "\n"
+      if line.match(/^- /)
+        is_in_bullet_list = true
+        line
+      elsif line.match(/^ /)
+        if is_in_bullet_list
+          "  " + line.lstrip
+        elsif code_block_level
+          line[code_block_level..]
+        else
+          code_block_level = line[/^ +/].size
+          "```\n" + line.lstrip
+        end
+      elsif code_block_level
+        code_block_level = nil
+        "```\n" + line
+      else
+        is_in_bullet_list = false
+        line
+      end
+    end.join
+    if code_block_level
+      content << "```\n"
+    end
 
     if heading == "更新履歴"
       changes =
         content
-          .split(/\[(\d{4}\/\d{1,2}\/\d{1,2})\]/)
+          .split(/\\\[(\d{4}\/\d{1,2}\/\d{1,2})\]/)
           .drop(1)
           .each_slice(2)
           .to_h do |date, change|
@@ -111,7 +141,7 @@ task :convert_description do
             change.strip!
             next if date.empty? || change.empty?
 
-            change.gsub!(/^ *\[/, "- [")
+            change.gsub!(/^ *\\\[/, "- \\[")
             [date, change]
           end
 
@@ -152,7 +182,7 @@ end
 
 class String
   def dedent
-    lines = self.lines.map(&:chomp)
+    lines = self.lines.map(&:rstrip)
     min_indent = lines.reject(&:empty?).map { |line| line[/^\s*/].size }.min
     lines.map { |line| line[min_indent..-1] }.join("\n")
   end

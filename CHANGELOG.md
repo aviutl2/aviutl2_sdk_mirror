@@ -1,5 +1,13 @@
 # 変更履歴
 
+## 2026/2/8
+
+- \[auf2] OBJECT_INFOのidの値を描画対象のオブジェクトIDとなるように修正
+- \[aux2] メインスレッドからcall_edit_section()を呼び出した時は直接処理するように修正
+- \[aux2] EDIT_HANDLEにget_host_app_window()を追加
+- \[aux2] HOST_APP_TABLEにEDIT_SECTIONにしないメニュー登録関数を追加
+  同名のパッケージファイルが既にインストールされている場合は削除後にインストールするようにした
+
 ## 2026/2/1
 
 - \[config2] get_color_code()で複数色定義の項目取得で例外になるのを修正

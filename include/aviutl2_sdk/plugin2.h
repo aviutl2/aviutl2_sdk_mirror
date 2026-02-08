@@ -311,6 +311,9 @@ struct EDIT_HANDLE {
 	// func_proc_enum_module	: モジュール情報の取得処理のコールバック関数
 	void (*enum_module_info)(void* param, void (*func_proc_enum_module)(void* param, MODULE_INFO* info));
 
+	// ホストアプリケーションのメインウィンドウのハンドルを取得します
+	HWND (*get_host_app_window)();
+
 };
 
 //----------------------------------------------------------------------------------
@@ -378,12 +381,12 @@ struct HOST_APP_TABLE {
 	// script_module_table	: スクリプトモジュール構造体
 	void (*register_script_module)(SCRIPT_MODULE_TABLE* script_module_table);
 
-	// インポートメニューを登録する (ウィンドウメニューのファイルに追加されます)　
+	// インポートメニューを登録する (ウィンドウメニューのファイルに追加されます)
 	// name				: インポートメニューの名称
 	// func_proc_import	: インポートメニュー選択時のコールバック関数
 	void (*register_import_menu)(LPCWSTR name, void (*func_proc_import)(EDIT_SECTION* edit));
 
-	// エクスポートメニューを登録する (ウィンドウメニューのファイルに追加されます)　
+	// エクスポートメニューを登録する (ウィンドウメニューのファイルに追加されます)
 	// name				: エクスポートメニューの名称
 	// func_proc_export	: エクスポートメニュー選択時のコールバック関数
 	void (*register_export_menu)(LPCWSTR name, void (*func_proc_export)(EDIT_SECTION* edit));
@@ -434,5 +437,40 @@ struct HOST_APP_TABLE {
 	// シーンを変更した直後に呼ばれる関数を登録する ※シーンの設定情報が更新された時にも呼ばれます
 	// func_proc_change_scene	: シーン変更時のコールバック関数
 	void (*register_change_scene_handler)(void (*func_proc_change_scene)(EDIT_SECTION* edit));
+
+	// インポートメニューを登録する (ウィンドウメニューのファイルに追加されます)
+	// 引数paramを渡して編集セクションにしないでコールバックを呼び出します
+	// name				: インポートメニューの名称
+	// param			: 任意のユーザーデータのポインタ
+	// func_proc_import	: インポートメニュー選択時のコールバック関数
+	void (*register_import_menu_param)(LPCWSTR name, void* param, void (*func_proc_import)(void* param));
+
+	// エクスポートメニューを登録する (ウィンドウメニューのファイルに追加されます)
+	// 引数paramを渡して編集セクションにしないでコールバックを呼び出します
+	// name				: エクスポートメニューの名称
+	// param			: 任意のユーザーデータのポインタ
+	// func_proc_export	: エクスポートメニュー選択時のコールバック関数
+	void (*register_export_menu_param)(LPCWSTR name, void* param, void (*func_proc_export)(void* param));
+
+	// レイヤーメニューを登録する (レイヤー編集でオブジェクト未選択時の右クリックメニューに追加されます)
+	// 引数paramを渡して編集セクションにしないでコールバックを呼び出します
+	// name					: レイヤーメニューの名称
+	// param				: 任意のユーザーデータのポインタ
+	// func_proc_layer_menu	: レイヤーメニュー選択時のコールバック関数
+	void (*register_layer_menu_param)(LPCWSTR name, void* param, void (*func_proc_layer_menu)(void* param));
+
+	// オブジェクトメニューを登録する (レイヤー編集でオブジェクト選択時の右クリックメニューに追加されます)
+	// 引数paramを渡して編集セクションにしないでコールバックを呼び出します
+	// name						: オブジェクトメニューの名称
+	// param					: 任意のユーザーデータのポインタ
+	// func_proc_object_menu	: オブジェクトメニュー選択時のコールバック関数
+	void (*register_object_menu_param)(LPCWSTR name, void* param, void (*func_proc_object_menu)(void* param));
+
+	// 編集メニューを登録する
+	// 引数paramを渡して編集セクションにしないでコールバックを呼び出します
+	// name					: 編集メニューの名称 ※名称に'\'を入れると表示を階層に出来ます
+	// param				: 任意のユーザーデータのポインタ
+	// func_proc_edit_menu	: 編集メニュー選択時のコールバック関数
+	void (*register_edit_menu_param)(LPCWSTR name, void* param, void (*func_proc_edit_menu)(void* param));
 
 };

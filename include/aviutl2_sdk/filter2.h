@@ -164,6 +164,7 @@ struct SCENE_INFO {
 // オブジェクト情報構造体
 struct OBJECT_INFO {
 	int64_t id;				// オブジェクトのID (アプリ起動毎の固有ID)
+							// ※描画対象のオブジェクトの固有ID
 	int frame;				// オブジェクトの現在のフレーム番号
 	int frame_total;		// オブジェクトの総フレーム数
 	double time;			// オブジェクトの現在の時間(秒)

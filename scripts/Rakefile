@@ -141,8 +141,7 @@ task :convert_description do
             change.strip!
             next if date.empty? || change.empty?
 
-            change.gsub!(/^ *\\\[/, "- \\[")
-            change.gsub!(/^ *(?=[^\\])/, "- ")
+            change.gsub!(/^ *(?=\S)/, "- ")
             [date, change]
           end
 

@@ -8,6 +8,9 @@
 //	プラグイン登録関数 (必須)
 //		void RegisterPlugin(HOST_APP_TABLE* host)
 // 
+//	必要とする本体バージョン番号取得関数 (任意)
+//		DWORD RequiredVersion() ※必要な本体のバージョン番号を返却します
+// 
 //	プラグインDLL初期化関数 (任意)
 //		bool InitializePlugin(DWORD version) ※versionは本体のバージョン番号
 // 
@@ -267,12 +270,47 @@ struct EDIT_SECTION {
 	// name		: オブジェクト名 (nullptrか空文字を指定すると標準の名前になります)　
 	void (*set_object_name)(OBJECT_HANDLE object, LPCWSTR name);
 
+	// レイヤー名を取得します
+	// layer	: レイヤー番号
+	// 戻り値	: レイヤー名へのポインタ (標準の名前の場合はnullptrを返却)　
+	//			  ※レイヤーの編集をするかコールバック処理の終了まで有効
+	LPCWSTR (*get_layer_name)(int layer);
+
+	// レイヤー名を設定します
+	// layer	: レイヤー番号
+	// name		: レイヤー名 (nullptrか空文字を指定すると標準の名前になります)　
+	void (*set_layer_name)(int layer, LPCWSTR name);
+
+	// シーン名を取得します
+	// 戻り値	: シーン名へのポインタ
+	//			  ※シーンの編集をするかコールバック処理の終了まで有効
+	LPCWSTR (*get_scene_name)();
+
+	// シーン名を設定します ※シーンの操作は現状Undoに非対応です
+	// name		: シーン名
+	//			  ※シーン名は必須になります (nullptrや空文字の場合は変更しません)
+	void (*set_scene_name)(LPCWSTR name);
+
+	// シーンの解像度を設定します ※シーンの操作は現状Undoに非対応です
+	// width	: 横のサイズ
+	// height	: 縦のサイズ
+	void (*set_scene_size)(int width, int height);
+
+	// シーンのフレームレートを設定します ※シーンの操作は現状Undoに非対応です
+	// rate		: フレームレート
+	// scale	: フレームレートのスケール
+	void (*set_scene_frame_rate)(int rate, int scale);
+
+	// シーンのサンプリングレートを設定します ※シーンの操作は現状Undoに非対応です
+	// sample_rate	: サンプリングレート
+	void (*set_scene_sample_rate)(int sample_rate);
+
 };
 
 // 編集ハンドル構造体
 struct EDIT_HANDLE {
 	// プロジェクトデータの編集をする為のコールバック関数(func_proc_edit)を呼び出します
-	// 編集情報を排他制御する為にコールバック関数内で編集処理をする形になります
+	// 編集情報を排他制御する為に更新ロック状態のコールバック関数内で編集処理をする形になります
 	// コールバック関数内で編集したオブジェクトは纏めてUndoに登録されます
 	// コールバック関数はメインスレッドから呼ばれます
 	// func_proc_edit	: 編集処理のコールバック関数
@@ -285,7 +323,7 @@ struct EDIT_HANDLE {
 	bool (*call_edit_section_param)(void* param, void (*func_proc_edit)(void* param, EDIT_SECTION* edit));
 
 	// 編集情報を取得します
-	// 既に編集処理中(EDIT_SECTIONが引数のコールバック関数内等)の場合は利用出来ません ※デッドロックします
+	// 編集情報を排他制御する為に参照ロックします。※同一スレッドで既にロック状態の場合はそのまま取得します。
 	// info			: 編集情報の格納先へのポインタ
 	// info_size	: 編集情報の格納先のサイズ ※EDIT_INFOと異なる場合はサイズ分のみ取得されます
 	void (*get_edit_info)(EDIT_INFO* info, int info_size);

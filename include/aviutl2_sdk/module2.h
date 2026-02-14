@@ -7,6 +7,9 @@
 //
 //	スクリプトモジュール構造体のポインタを渡す関数 (必須)
 //		SCRIPT_MODULE_TABLE* GetScriptModuleTable(void)
+//
+//	必要とする本体バージョン番号取得関数 (任意)
+//		DWORD RequiredVersion() ※必要な本体のバージョン番号を返却します
 // 
 //	プラグインDLL初期化関数 (任意)
 //		bool InitializePlugin(DWORD version) ※versionは本体のバージョン番号

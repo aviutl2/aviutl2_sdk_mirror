@@ -113,10 +113,10 @@ task :convert_description do
         if is_in_bullet_list
           "  " + line.lstrip
         elsif code_block_level
-          line[code_block_level..]
+          line[code_block_level..].gsub("\\[", "[")
         else
           code_block_level = line[/^ +/].size
-          "```\n" + line.lstrip
+          "```\n" + line.lstrip.gsub("\\[", "[")
         end
       elsif code_block_level
         code_block_level = nil

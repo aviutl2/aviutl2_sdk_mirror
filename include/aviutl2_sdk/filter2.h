@@ -120,7 +120,7 @@ struct FILTER_ITEM_BUTTON {
 	FILTER_ITEM_BUTTON(LPCWSTR name, void (*callback)(EDIT_SECTION* edit)) : name(name), callback(callback) {}
 	LPCWSTR type = L"button";			// 設定の種別
 	LPCWSTR name;						// 設定名
-	void (*callback)(EDIT_SECTION*);	// ボタンを押した時のコールバック関数
+	void (*callback)(EDIT_SECTION*);	// ボタンを押した時のコールバック関数 (呼び出し時に各設定項目の設定値が更新されます)
 };
 
 // 文字列項目構造体 ※1行の文字列

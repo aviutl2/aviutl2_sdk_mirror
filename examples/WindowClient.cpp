@@ -15,6 +15,14 @@ LOG_HANDLE* logger;
 CONFIG_HANDLE* config;
 
 //---------------------------------------------------------------------
+//	汎用プラグイン構造体定義
+//---------------------------------------------------------------------
+COMMON_PLUGIN_TABLE common_plugin_table = {
+	L"Sample Window Client",								// プラグインの名前
+	L"Sample Window Client version 2.00 By ＫＥＮくん",		// プラグインの情報
+};
+
+//---------------------------------------------------------------------
 //	必要とする本体バージョン番号取得関数 (未定義なら呼ばれません)
 //---------------------------------------------------------------------
 EXTERN_C __declspec(dllexport) DWORD RequiredVersion() {
@@ -46,6 +54,13 @@ EXTERN_C __declspec(dllexport) bool InitializePlugin(DWORD version) {
 //	プラグインDLL解放関数 (未定義なら呼ばれません)
 //---------------------------------------------------------------------
 EXTERN_C __declspec(dllexport) void UninitializePlugin() {
+}
+
+//---------------------------------------------------------------------
+//	汎用プラグイン構造体のポインタを渡す関数
+//---------------------------------------------------------------------
+EXTERN_C __declspec(dllexport) COMMON_PLUGIN_TABLE* GetCommonPluginTable(void) {
+	return &common_plugin_table;
 }
 
 //---------------------------------------------------------------------
@@ -95,9 +110,6 @@ LRESULT CALLBACK wnd_proc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 //	プラグイン登録関数
 //---------------------------------------------------------------------
 EXTERN_C __declspec(dllexport) void RegisterPlugin(HOST_APP_TABLE* host) {
-	// プラグインの情報を設定
-	host->set_plugin_information(L"Sample Window Client version 2.00 By ＫＥＮくん");
-
 	// 自身のウィンドウを作成
 	WNDCLASSEXW wcex = {};
 	wcex.cbSize = sizeof(WNDCLASSEX);

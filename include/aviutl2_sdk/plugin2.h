@@ -5,6 +5,9 @@
 
 //	汎用プラグインは下記の関数を外部公開すると呼び出されます
 //
+//	汎用プラグイン構造体のポインタを渡す関数 (任意)
+//		COMMON_PLUGIN_TABLE* GetCommonPluginTable(void)
+//
 //	プラグイン登録関数 (必須)
 //		void RegisterPlugin(HOST_APP_TABLE* host)
 // 
@@ -31,6 +34,14 @@ struct FILTER_PLUGIN_TABLE;
 struct SCRIPT_MODULE_TABLE;
 struct EDIT_HANDLE;
 struct PROJECT_FILE;
+
+// 汎用プラグイン構造体
+struct COMMON_PLUGIN_TABLE {
+	LPCWSTR name;				// プラグインの名前
+	LPCWSTR information;		// プラグインの情報
+};
+
+//----------------------------------------------------------------------------------
 
 // オブジェクトハンドル
 typedef void* OBJECT_HANDLE;
@@ -402,6 +413,7 @@ struct PROJECT_FILE {
 struct HOST_APP_TABLE {
 	// プラグインの情報を設定する
 	// information	: プラグインの情報
+	// ※現在はGetCommonPluginTable()を利用する方法が推奨になります
 	void (*set_plugin_information)(LPCWSTR information);
 
 	// 入力プラグインを登録する

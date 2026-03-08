@@ -524,4 +524,18 @@ struct HOST_APP_TABLE {
 	// func_proc_edit_menu	: 編集メニュー選択時のコールバック関数
 	void (*register_edit_menu_param)(LPCWSTR name, void* param, void (*func_proc_edit_menu)(void* param));
 
+	// ファイルをD&Dした時に呼ばれる関数を登録する
+	// name					: ドラッグ時のツールチップや入力プラグインの設定で表示する名称
+	// filefilter			: D&Dに対応するファイルフィルタ
+	// func_proc_file_drop	: ファイルをD&Dした時のコールバック関数
+	void (*register_file_drop_handler)(LPCWSTR name, LPCWSTR filefilter, void (*func_proc_file_drop)(EDIT_SECTION* edit, LPCWSTR file));
+
+	// ファイルをD&Dした時に呼ばれる関数を登録する
+	// 引数paramを渡して編集セクションにしないでコールバックを呼び出します
+	// name					: ドラッグ時のツールチップや入力プラグインの設定で表示する名称
+	// filefilter			: D&Dに対応するファイルフィルタ
+	// param				: 任意のユーザーデータのポインタ
+	// func_proc_file_drop	: ファイルをD&Dした時のコールバック関数
+	void (*register_file_drop_param_handler)(LPCWSTR name, LPCWSTR filefilter, void* param, void (*func_proc_file_drop)(void* param, LPCWSTR file));
+
 };

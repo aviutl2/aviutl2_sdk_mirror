@@ -1,5 +1,10 @@
 # 変更履歴
 
+## 2026/3/8
+
+- \[aux2] set_object_item_value()で対象レイヤー数を変更した時にレイヤー編集の表示に反映されないのを修正
+- \[aux2] HOST_APP_TABLEにregister_file_drop_handler(),register_file_drop_param_handler()を追加
+
 ## 2026/2/28
 
 - \[aux2] 汎用プラグイン情報取得関数定義(GetCommonPluginTable)を追加

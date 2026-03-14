@@ -1,5 +1,12 @@
 # 変更履歴
 
+## 2026/3/14
+
+- \[aux2] 引数に存在しないファイルを指定してアプリを起動した時にregister_project_load_handler()が呼ばれないのを修正
+- \[aux2] set_object_item_value()でテキスト設定を変更した時にオブジェクト設定の表示が更新されないことがあるのを修正
+- \[aux2] get_mouse_layer_frame()でファイルD&D時のドロップ位置を取得出来るようにした
+- 各種ヘッダーファイルに#pragma onceを追加
+
 ## 2026/3/8
 
 - \[aux2] set_object_item_value()で対象レイヤー数を変更した時にレイヤー編集の表示に反映されないのを修正

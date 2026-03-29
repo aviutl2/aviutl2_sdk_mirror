@@ -36,7 +36,7 @@ struct FILTER_ITEM_TRACK {
 	LPCWSTR name;				// 設定名
 	double value;				// 設定値 (フィルタ処理の呼び出し時に現在の値に更新されます)
 	const double s, e;			// 設定値の最小、最大
-	const double step;			// 設定値の単位( 1.0 / 0.1 / 0.01 / 0.001 )
+	const double step;			// 設定値の単位( 1.0 / 0.1 / 0.01 / 0.001 ) ※0.0001以下も指定出来ますが最大最小値の範囲に応じて調整されます
 };
 
 // チェックボックス項目構造体

@@ -1,5 +1,9 @@
 # 変更履歴
 
+## 2026/3/29
+
+- \[mod2] push_result_array_boolean(),push_result_table_boolean()を追加
+
 ## 2026/3/14
 
 - \[aux2] 引数に存在しないファイルを指定してアプリを起動した時にregister_project_load_handler()が呼ばれないのを修正

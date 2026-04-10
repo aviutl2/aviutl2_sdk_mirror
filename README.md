@@ -3,7 +3,7 @@
 <small>メンテナー：<a href="https://github.com/sevenc-nanashi">@sevenc-nanashi</a></small>
 
 AviUtl2 SDKのミラーです。
-毎日0時に自動で更新されます。
+GitHub Actionsにより自動で更新されます。
 更新スクリプトや変更点は[./scripts](./scripts)ディレクトリを参照してください。
 
 > [!WARNING]

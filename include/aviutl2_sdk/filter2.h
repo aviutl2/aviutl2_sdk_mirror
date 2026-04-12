@@ -151,6 +151,14 @@ struct FILTER_ITEM_FOLDER {
 	LPCWSTR value;				// 設定値 (フィルタ処理の呼び出し時に現在の値のポインタに更新されます)
 };
 
+// セパレーター項目構造体
+// 例：FILTER_ITEM_SEPARATOR separator = { L"中心座標" };
+struct FILTER_ITEM_SEPARATOR {
+	FILTER_ITEM_SEPARATOR(LPCWSTR name) : name(name) {}
+	LPCWSTR type = L"separator";	// 設定の種別
+	LPCWSTR name;					// 設定名
+};
+
 //----------------------------------------------------------------------------------
 
 // RGBA32bit構造体

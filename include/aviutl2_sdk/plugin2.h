@@ -143,7 +143,7 @@ struct EDIT_SECTION {
 	// object	: オブジェクトのハンドル
 	// 戻り値	: オブジェクトエイリアスデータ(UTF-8)へのポインタ (取得出来ない場合はnullptrを返却)
 	// 			  オブジェクトエイリアスファイルと同じフォーマットになります
-	//			  ※次に文字列返却の関数を使うかコールバック処理の終了まで有効
+	//			  ※次に同一スレッドで文字列返却の関数を使うまで有効
 	LPCSTR (*get_object_alias)(OBJECT_HANDLE object);
 
 	// オブジェクトの設定項目の値を文字列で取得します
@@ -154,7 +154,7 @@ struct EDIT_SECTION {
 	// item		: 対象の設定項目の名称 (エイリアスファイルのキーの名称)
 	// 戻り値	: 取得した設定値(UTF8)へのポインタ (取得出来ない場合はnullptrを返却)
 	//			  エイリアスファイルの設定値と同じフォーマットになります
-	//			  ※次に文字列返却の関数を使うかコールバック処理の終了まで有効
+	//			  ※次に同一スレッドで文字列返却の関数を使うまで有効
 	LPCSTR (*get_object_item_value)(OBJECT_HANDLE object, LPCWSTR effect, LPCWSTR item);
 
 	// オブジェクトの設定項目の値を文字列で設定します
@@ -365,6 +365,12 @@ struct EDIT_HANDLE {
 
 	// ホストアプリケーションのメインウィンドウのハンドルを取得します
 	HWND (*get_host_app_window)();
+
+	// 編集状態を取得します
+	int (*get_edit_state)();
+	static constexpr int EDIT_STATE_EDIT = 0;	// 編集中
+	static constexpr int EDIT_STATE_PLAY = 1;	// プレビュー再生中
+	static constexpr int EDIT_STATE_SAVE = 2;	// ファイル出力中
 
 };
 

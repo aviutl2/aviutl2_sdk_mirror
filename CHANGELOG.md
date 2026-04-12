@@ -1,5 +1,12 @@
 # 変更履歴
 
+## 2026/4/12
+
+- \[auf2] FILTER_ITEM_SEPARATORを追加
+- \[aux2] EDIT_HANDLEにget_edit_state()を追加
+- \[aux2] EDIT_SECTIONの幾つかの関数の実装を改善
+- \[au2pkg] package.iniにuninstallSubFolderFileの項目を追加
+
 ## 2026/3/29
 
 - \[mod2] push_result_array_boolean(),push_result_table_boolean()を追加

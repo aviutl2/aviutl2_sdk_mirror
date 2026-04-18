@@ -1,5 +1,9 @@
 # 変更履歴
 
+## 2026/4/18
+
+- \[aux2] EDIT_HANDLEにcall_read_section,call_read_section_param()を追加
+
 ## 2026/4/12
 
 - \[auf2] FILTER_ITEM_SEPARATORを追加

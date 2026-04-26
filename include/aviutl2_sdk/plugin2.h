@@ -334,7 +334,7 @@ struct EDIT_HANDLE {
 	// プロジェクトデータの編集をする為のコールバック関数(func_proc_edit)を呼び出します
 	// 編集情報を排他制御する為に更新ロック状態のコールバック関数内で編集処理をする形になります
 	// コールバック関数内で編集したオブジェクトは纏めてUndoに登録されます
-	// コールバック関数はメインスレッドから呼ばれます
+	// コールバック関数は呼び出し元と同じスレッドで呼ばれます
 	// func_proc_edit	: 編集処理のコールバック関数
 	// 戻り値			: trueなら成功
 	//					  編集が出来ない場合(出力中等)に失敗します
@@ -361,6 +361,8 @@ struct EDIT_HANDLE {
 	static constexpr int EFFECT_TYPE_FILTER		= 1;	// フィルタ効果
 	static constexpr int EFFECT_TYPE_INPUT		= 2;	// メディア入力
 	static constexpr int EFFECT_TYPE_TRANSITION = 3;	// シーンチェンジ
+	static constexpr int EFFECT_TYPE_CONTROL	= 4;	// オブジェクト制御
+	static constexpr int EFFECT_TYPE_OUTPUT		= 5;	// メディア出力
 	// エフェクトフラグ ※今後追加される可能性があります
 	static constexpr int EFFECT_FLAG_VIDEO		= 1;	// 画像をサポート
 	static constexpr int EFFECT_FLAG_AUDIO		= 2;	// 音声をサポート
@@ -392,6 +394,30 @@ struct EDIT_HANDLE {
 	// call_read_section()に引数paramを渡せるようにした関数です
 	// param			: 任意のユーザーデータのポインタ
 	bool (*call_read_section_param)(void* param, void (*func_proc_read_section)(void* param, EDIT_SECTION* edit));
+
+	// エフェクトの設定項目の一覧をコールバック関数(func_proc_enum_effect_item)で取得します
+	// effect						: 対象のエフェクト名 (エイリアスファイルのeffect.nameの値)
+	// param						: 任意のユーザーデータのポインタ
+	// func_proc_enum_effect_item	: エフェクトの設定項目の取得処理のコールバック関数
+	// 戻り値						: 取得出来た場合はtrue (対象が見つからない場合は失敗します)
+	bool (*enum_effect_item)(LPCWSTR effect, void* param, void (*func_proc_enum_effect_item)(void* param, LPCWSTR name, int type));
+	// 設定項目種別 ※今後追加される可能性があります
+	static constexpr int EFFECT_ITEM_TYPE_INTEGER	= 1;	// 整数
+	static constexpr int EFFECT_ITEM_TYPE_NUMBER	= 2;	// 数値
+	static constexpr int EFFECT_ITEM_TYPE_CHECK		= 3;	// チェックボックス
+	static constexpr int EFFECT_ITEM_TYPE_TEXT		= 4;	// テキスト
+	static constexpr int EFFECT_ITEM_TYPE_STRING	= 5;	// 文字列
+	static constexpr int EFFECT_ITEM_TYPE_FILE		= 6;	// ファイル
+	static constexpr int EFFECT_ITEM_TYPE_COLOR		= 7;	// 色
+	static constexpr int EFFECT_ITEM_TYPE_SELECT	= 8;	// リスト選択
+	static constexpr int EFFECT_ITEM_TYPE_SCENE		= 9;	// シーン
+	static constexpr int EFFECT_ITEM_TYPE_RANGE		= 10;	// レイヤー範囲
+	static constexpr int EFFECT_ITEM_TYPE_COMBO		= 11;	// リストと文字の複合
+	static constexpr int EFFECT_ITEM_TYPE_MASK		= 12;	// マスク
+	static constexpr int EFFECT_ITEM_TYPE_FONT		= 13;	// フォント
+	static constexpr int EFFECT_ITEM_TYPE_FIGURE	= 14;	// 図形
+	static constexpr int EFFECT_ITEM_TYPE_DATA		= 15;	// データ
+	static constexpr int EFFECT_ITEM_TYPE_FOLDER	= 16;	// フォルダ
 
 };
 

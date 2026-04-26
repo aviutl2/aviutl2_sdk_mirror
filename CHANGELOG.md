@@ -1,5 +1,11 @@
 # 変更履歴
 
+## 2026/4/26
+
+- \[aux2] call_edit_section()のコールバック関数を呼び出し元と同じスレッドで呼ばれるように修正
+- \[aux2] enum_effect_name()のエフェクト種別にEFFECT_TYPE_CONTROL,EFFECT_TYPE_OUTPUTを追加
+- \[aux2] EDIT_HANDLEにenum_effect_item()を追加
+
 ## 2026/4/18
 
 - \[aux2] EDIT_HANDLEにcall_read_section,call_read_section_param()を追加

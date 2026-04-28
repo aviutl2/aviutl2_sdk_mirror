@@ -334,7 +334,7 @@ struct EDIT_HANDLE {
 	// プロジェクトデータの編集をする為のコールバック関数(func_proc_edit)を呼び出します
 	// 編集情報を排他制御する為に更新ロック状態のコールバック関数内で編集処理をする形になります
 	// コールバック関数内で編集したオブジェクトは纏めてUndoに登録されます
-	// コールバック関数は呼び出し元と同じスレッドで呼ばれます
+	// コールバック関数はメインスレッドから呼ばれます
 	// func_proc_edit	: 編集処理のコールバック関数
 	// 戻り値			: trueなら成功
 	//					  編集が出来ない場合(出力中等)に失敗します
@@ -367,6 +367,7 @@ struct EDIT_HANDLE {
 	static constexpr int EFFECT_FLAG_VIDEO		= 1;	// 画像をサポート
 	static constexpr int EFFECT_FLAG_AUDIO		= 2;	// 音声をサポート
 	static constexpr int EFFECT_FLAG_FILTER		= 4;	// フィルタオブジェクトをサポート
+	static constexpr int EFFECT_FLAG_CAMERA		= 8;	// カメラ効果をサポート
 
 	// モジュール情報の一覧をコールバック関数(func_proc_enum_module)で取得します
 	// param					: 任意のユーザーデータのポインタ

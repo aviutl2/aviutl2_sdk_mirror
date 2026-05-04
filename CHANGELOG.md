@@ -1,5 +1,9 @@
 # 変更履歴
 
+## 2026/5/4
+
+- \[aux2] HOST_APP_TABLEにregister_object_item_menu(),register_object_item_menu_param()を追加
+
 ## 2026/4/28
 
 - \[aux2] call_edit_section()のコールバック関数をメインスレッドで呼ばれるように修正 ※色々問題があるので戻します

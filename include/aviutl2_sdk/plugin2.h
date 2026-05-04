@@ -594,4 +594,20 @@ struct HOST_APP_TABLE {
 	// func_proc_file_drop	: ファイルをD&Dした時のコールバック関数
 	void (*register_file_drop_param_handler)(LPCWSTR name, LPCWSTR filefilter, void* param, void (*func_proc_file_drop)(void* param, LPCWSTR file));
 
+	// オブジェクト編集の設定項目メニューを登録する (オブジェクト編集の右クリックメニューに追加されます)
+	// name						: 設定項目メニューの名称
+	// allow_effect_only		: エフェクトのみを許可するか? ※trueの場合はitemがnullptrで呼ばれるケースを許可します
+	// func_proc_item_menu		: 設定項目メニュー選択時のコールバック関数
+	// ※コールバック関数の引数はget_object_item_value()の引数と同じ形式になります
+	void (*register_object_item_menu)(LPCWSTR name, bool allow_effect_only, void (*func_proc_item_menu)(EDIT_SECTION* edit, OBJECT_HANDLE object, LPCWSTR effect, LPCWSTR item));
+
+	// オブジェクト編集の設定項目メニューを登録する (オブジェクト編集の右クリックメニューに追加されます)
+	// 引数paramを渡して編集セクションにしないでコールバックを呼び出します
+	// name						: 設定項目メニューの名称
+	// allow_effect_only		: エフェクトのみを許可するか? ※trueの場合はitemがnullptrで呼ばれるケースを許可します
+	// param					: 任意のユーザーデータのポインタ
+	// func_proc_item_menu		: 設定項目メニュー選択時のコールバック関数
+	// ※コールバック関数の引数はget_object_item_value()の引数と同じ形式になります
+	void (*register_object_item_menu_param)(LPCWSTR name, bool allow_effect_only, void* param, void (*func_proc_item_menu)(void* param, OBJECT_HANDLE object, LPCWSTR effect, LPCWSTR item));
+
 };

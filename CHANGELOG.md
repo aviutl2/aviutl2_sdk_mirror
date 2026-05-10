@@ -1,5 +1,14 @@
 # 変更履歴
 
+## 2026/5/10
+
+- \[auo2] OUTPUT_PLUGIN_TABLEにプロジェクトファイル側に出力設定を保持する為のフラグや関数を追加
+- \[aux2] 編集レジュームが有効でレジュームデータが無い時にregister_project_load_handler()が呼ばれないのを修正
+- \[aux2] EDIT_SECTIONにget_layer_enable(),set_layer_enable(),get_layer_lock(),set_layer_lock()を追加
+- \[aux2] EDIT_SECTIONにget_object_section_num(),get_focus_object_section()を追加
+- \[aux2] HOST_APP_TABLEにregister_script_module_name()を追加
+- \[aux2] レイヤーメニュー、オブジェクトメニュー、設定項目メニューの登録でメニューを階層にする指定を追加
+
 ## 2026/5/4
 
 - \[aux2] HOST_APP_TABLEにregister_object_item_menu(),register_object_item_menu_param()を追加

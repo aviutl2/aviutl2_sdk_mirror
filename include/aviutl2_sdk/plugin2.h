@@ -326,6 +326,35 @@ struct EDIT_SECTION {
 	// sample_rate	: サンプリングレート
 	void (*set_scene_sample_rate)(int sample_rate);
 
+	// レイヤーの表示・非表示状態を取得します
+	// layer	: レイヤー番号
+	// 戻り値	: レイヤーが表示状態の場合はtrue
+	bool (*get_layer_enable)(int layer);
+
+	// レイヤーの表示・非表示状態を設定します (call_read_section利用不可)
+	// layer	: レイヤー番号
+	// enable	: 設定するレイヤーの表示状態
+	void (*set_layer_enable)(int layer, bool enable);
+
+	// レイヤーのロック状態を取得します
+	// layer	: レイヤー番号
+	// 戻り値	: レイヤーがロック状態の場合はtrue
+	bool (*get_layer_lock)(int layer);
+
+	// レイヤーのロック状態を設定します (call_read_section利用不可)
+	// layer	: レイヤー番号
+	// lock		: 設定するレイヤーのロック状態
+	void (*set_layer_lock)(int layer, bool lock);
+
+	// オブジェクトの区間の数を取得します
+	// object	: オブジェクトのハンドル
+	// 戻り値	: 区間の数
+	int (*get_object_section_num)(OBJECT_HANDLE object);
+
+	// 選択中オブジェクトの区間の位置を取得します
+	// 戻り値	: 区間の番号 (未選択の場合は-1を返却)
+	int (*get_focus_object_section)();
+
 };
 
 // 編集ハンドル構造体
@@ -517,12 +546,12 @@ struct HOST_APP_TABLE {
 	void (*register_project_save_handler)(void (*func_project_save)(PROJECT_FILE* project));
 
 	// レイヤーメニューを登録する (レイヤー編集でオブジェクト未選択時の右クリックメニューに追加されます)
-	// name					: レイヤーメニューの名称
+	// name					: レイヤーメニューの名称 ※名称に'\'を入れると表示を複数階層に出来ます
 	// func_proc_layer_menu	: レイヤーメニュー選択時のコールバック関数
 	void (*register_layer_menu)(LPCWSTR name, void (*func_proc_layer_menu)(EDIT_SECTION* edit));
 
 	// オブジェクトメニューを登録する (レイヤー編集でオブジェクト選択時の右クリックメニューに追加されます)
-	// name						: オブジェクトメニューの名称
+	// name						: オブジェクトメニューの名称 ※名称に'\'を入れると表示を複数階層に出来ます
 	// func_proc_object_menu	: オブジェクトメニュー選択時のコールバック関数
 	void (*register_object_menu)(LPCWSTR name, void (*func_proc_object_menu)(EDIT_SECTION* edit));
 
@@ -561,14 +590,14 @@ struct HOST_APP_TABLE {
 
 	// レイヤーメニューを登録する (レイヤー編集でオブジェクト未選択時の右クリックメニューに追加されます)
 	// 引数paramを渡して編集セクションにしないでコールバックを呼び出します
-	// name					: レイヤーメニューの名称
+	// name					: レイヤーメニューの名称 ※名称に'\'を入れると表示を複数階層に出来ます
 	// param				: 任意のユーザーデータのポインタ
 	// func_proc_layer_menu	: レイヤーメニュー選択時のコールバック関数
 	void (*register_layer_menu_param)(LPCWSTR name, void* param, void (*func_proc_layer_menu)(void* param));
 
 	// オブジェクトメニューを登録する (レイヤー編集でオブジェクト選択時の右クリックメニューに追加されます)
 	// 引数paramを渡して編集セクションにしないでコールバックを呼び出します
-	// name						: オブジェクトメニューの名称
+	// name						: オブジェクトメニューの名称 ※名称に'\'を入れると表示を複数階層に出来ます
 	// param					: 任意のユーザーデータのポインタ
 	// func_proc_object_menu	: オブジェクトメニュー選択時のコールバック関数
 	void (*register_object_menu_param)(LPCWSTR name, void* param, void (*func_proc_object_menu)(void* param));
@@ -595,7 +624,7 @@ struct HOST_APP_TABLE {
 	void (*register_file_drop_param_handler)(LPCWSTR name, LPCWSTR filefilter, void* param, void (*func_proc_file_drop)(void* param, LPCWSTR file));
 
 	// オブジェクト編集の設定項目メニューを登録する (オブジェクト編集の右クリックメニューに追加されます)
-	// name						: 設定項目メニューの名称
+	// name						: 設定項目メニューの名称 ※名称に'\'を入れると表示を複数階層に出来ます
 	// allow_effect_only		: エフェクトのみを許可するか? ※trueの場合はitemがnullptrで呼ばれるケースを許可します
 	// func_proc_item_menu		: 設定項目メニュー選択時のコールバック関数
 	// ※コールバック関数の引数はget_object_item_value()の引数と同じ形式になります
@@ -603,11 +632,16 @@ struct HOST_APP_TABLE {
 
 	// オブジェクト編集の設定項目メニューを登録する (オブジェクト編集の右クリックメニューに追加されます)
 	// 引数paramを渡して編集セクションにしないでコールバックを呼び出します
-	// name						: 設定項目メニューの名称
+	// name						: 設定項目メニューの名称 ※名称に'\'を入れると表示を複数階層に出来ます
 	// allow_effect_only		: エフェクトのみを許可するか? ※trueの場合はitemがnullptrで呼ばれるケースを許可します
 	// param					: 任意のユーザーデータのポインタ
 	// func_proc_item_menu		: 設定項目メニュー選択時のコールバック関数
 	// ※コールバック関数の引数はget_object_item_value()の引数と同じ形式になります
 	void (*register_object_item_menu_param)(LPCWSTR name, bool allow_effect_only, void* param, void (*func_proc_item_menu)(void* param, OBJECT_HANDLE object, LPCWSTR effect, LPCWSTR item));
+
+	// スクリプトモジュールをモジュール名を指定して登録する
+	// script_module_table	: スクリプトモジュール構造体
+	// module_name			: モジュール名
+	void (*register_script_module_name)(SCRIPT_MODULE_TABLE* script_module_table, LPCWSTR module_name);
 
 };

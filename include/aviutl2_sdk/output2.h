@@ -26,6 +26,9 @@
 
 //----------------------------------------------------------------------------------
 
+// plugin2.hに定義されています
+struct PROJECT_FILE;
+
 // 出力情報構造体
 struct OUTPUT_INFO {
 	int flag;			//	フラグ
@@ -80,10 +83,12 @@ struct OUTPUT_INFO {
 // 出力プラグイン構造体
 struct OUTPUT_PLUGIN_TABLE {
 	int flag;				// フラグ
-	static constexpr int FLAG_VIDEO = 1; //	画像をサポートする
-	static constexpr int FLAG_AUDIO = 2; //	音声をサポートする
-	static constexpr int FLAG_IMAGE = 4; //	静止画出力のみサポートする (OUTPUT_INFOが1フレーム出力になります)
+	static constexpr int FLAG_VIDEO = 1; // 画像をサポートする
+	static constexpr int FLAG_AUDIO = 2; // 音声をサポートする
+	static constexpr int FLAG_IMAGE = 4; // 静止画出力のみサポートする (OUTPUT_INFOが1フレーム出力になります)
 										 // ※静止画出力では出力完了時の通知やサウンド再生をしません
+	static constexpr int FLAG_PROJECT_CONFIG = 8; // プロジェクトファイルの設定保持をサポートする
+												  // ※プロジェクトファイル側に出力設定を保持する場合に指定します
 	LPCWSTR name;			// プラグインの名前
 	LPCWSTR filefilter;		// ファイルのフィルタ
 	LPCWSTR information;	// プラグインの情報
@@ -97,4 +102,13 @@ struct OUTPUT_PLUGIN_TABLE {
 	// 出力設定のテキスト情報を取得する時に呼ばれる関数へのポインタ (nullptrなら呼ばれません)
 	// 戻り値	: 出力設定のテキスト情報(次に関数が呼ばれるまで内容を有効にしておく)
 	LPCWSTR (*func_get_config_text)();
+
+	// プロジェクトファイル側から出力設定の読み込み要求時に呼ばれる関数へのポインタ (FLAG_PROJECT_CONFIGが有効の時のみ呼ばれます)
+	// project	: プロジェクトファイル構造体へのポインタ
+	bool (*func_load_project_config)(PROJECT_FILE* project);
+
+	// プロジェクトファイル側への出力設定の書き込み要求時に呼ばれる関数へのポインタ (FLAG_PROJECT_CONFIGが有効の時のみ呼ばれます)
+	// project	: プロジェクトファイル構造体へのポインタ
+	bool (*func_save_project_config)(PROJECT_FILE* project);
+
 };

@@ -29,6 +29,7 @@ expected_files = %w[
   plugin2.h
   logger2.h
   config2.h
+  cache2.h
   AviReader.cpp
   AviSaver.cpp
   MediaFilter.cpp
@@ -198,6 +199,7 @@ task :copy_and_reencode do
     "plugin2.h" => "include/aviutl2_sdk/plugin2.h",
     "logger2.h" => "include/aviutl2_sdk/logger2.h",
     "config2.h" => "include/aviutl2_sdk/config2.h",
+    "cache2.h" => "include/aviutl2_sdk/cache2.h",
     "AviReader.cpp" => "examples/AviReader.cpp",
     "AviSaver.cpp" => "examples/AviSaver.cpp",
     "MediaFilter.cpp" => "examples/MediaFilter.cpp",

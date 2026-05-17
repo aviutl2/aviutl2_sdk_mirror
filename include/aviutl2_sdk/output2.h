@@ -64,13 +64,13 @@ struct OUTPUT_INFO {
 	void* (*func_get_audio)(int start, int length, int* readed, DWORD format);
 
 	// 中断するか調べます
-	// 戻り値	: TRUEなら中断
+	// 戻り値	: trueなら中断
 	bool (*func_is_abort)();
 
 	// 残り時間を表示させます
 	// now		: 処理しているフレーム番号
 	// total	: 処理する総フレーム数
-	// 戻り値	: TRUEなら成功
+	// 戻り値	: trueなら成功
 	void (*func_rest_time_disp)(int now, int total);
 
 	// データ取得のバッファ数(フレーム数)を設定します ※標準は4になります
@@ -94,21 +94,25 @@ struct OUTPUT_PLUGIN_TABLE {
 	LPCWSTR information;	// プラグインの情報
 
 	// 出力時に呼ばれる関数へのポインタ
+	// 戻り値	: 成功時はtrueを返却
 	bool (*func_output)(OUTPUT_INFO* oip);
 
 	// 出力設定のダイアログを要求された時に呼ばれる関数へのポインタ (nullptrなら呼ばれません)
+	// 戻り値	: 成功時はtrueを返却
 	bool (*func_config)(HWND hwnd, HINSTANCE dll_hinst);
 
 	// 出力設定のテキスト情報を取得する時に呼ばれる関数へのポインタ (nullptrなら呼ばれません)
-	// 戻り値	: 出力設定のテキスト情報(次に関数が呼ばれるまで内容を有効にしておく)
+	// 戻り値	: 出力設定のテキスト情報へのポインタ (次に関数が呼ばれるまで内容を有効にしておく)
 	LPCWSTR (*func_get_config_text)();
 
 	// プロジェクトファイル側から出力設定の読み込み要求時に呼ばれる関数へのポインタ (FLAG_PROJECT_CONFIGが有効の時のみ呼ばれます)
 	// project	: プロジェクトファイル構造体へのポインタ
+	// 戻り値	: 成功時はtrueを返却
 	bool (*func_load_project_config)(PROJECT_FILE* project);
 
 	// プロジェクトファイル側への出力設定の書き込み要求時に呼ばれる関数へのポインタ (FLAG_PROJECT_CONFIGが有効の時のみ呼ばれます)
 	// project	: プロジェクトファイル構造体へのポインタ
+	// 戻り値	: 成功時はtrueを返却
 	bool (*func_save_project_config)(PROJECT_FILE* project);
 
 };

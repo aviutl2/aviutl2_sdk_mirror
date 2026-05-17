@@ -23,8 +23,14 @@
 // 
 //	設定関連機能初期化関数 (任意) ※config2.h
 //		void InitializeConfig(CONFIG_HANDLE* config)
+//
+//	キャッシュ関連機能初期化関数 ※cache2.h
+//		void InitializeCache(CACHE_HANDLE* cache)
 
 //----------------------------------------------------------------------------------
+
+// plugin2.hに定義されています
+struct EDIT_SECTION;
 
 // スクリプトモジュール引数構造体
 struct SCRIPT_MODULE_PARAM {
@@ -186,6 +192,12 @@ struct SCRIPT_MODULE_PARAM {
 	// value		: 戻り値の配列
 	// num			: 配列の要素数
 	void (*push_result_table_boolean)(LPCSTR* key, bool* value, int num);
+
+	//--------------------------------
+
+	// 編集セクション関数
+	// スクリプト処理中は参照系の関数が利用出来ます
+	EDIT_SECTION* edit;
 
 };
 

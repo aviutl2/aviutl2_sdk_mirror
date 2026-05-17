@@ -1,5 +1,13 @@
 # 変更履歴
 
+## 2026/5/17
+
+- \[auf2] OBJECT_INFOにlayer,index,numを追加
+- \[auf2] FILTER_PROC_VIDEO,FILTER_PROC_AUDIOに幾つかの関数を追加
+- \[auf2]\[mod2]\[aux2] キャッシュ関連機能の関数定義(InitializeCache)を追加
+- \[auf2]\[mod2] EDIT_SECTIONの参照用の関数を利用出来るようにした
+- \[auf2] サンプルフィルタプラグインを更新
+
 ## 2026/5/10
 
 - \[auo2] OUTPUT_PLUGIN_TABLEにプロジェクトファイル側に出力設定を保持する為のフラグや関数を追加

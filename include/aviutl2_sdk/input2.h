@@ -64,18 +64,18 @@ struct INPUT_PLUGIN_TABLE {
 
 	// 入力ファイルをオープンする関数へのポインタ
 	// file		: ファイル名
-	// 戻り値	: TRUEなら入力ファイルハンドル
+	// 戻り値	: 入力ファイルハンドル ※失敗時はnullptrを返却
 	INPUT_HANDLE (*func_open)(LPCWSTR file);
 
 	// 入力ファイルをクローズする関数へのポインタ
 	// ih		: 入力ファイルハンドル
-	// 戻り値	: TRUEなら成功
+	// 戻り値	: 成功時はtrueを返却
 	bool (*func_close)(INPUT_HANDLE ih);
 
 	// 入力ファイルの情報を取得する関数へのポインタ
 	// ih		: 入力ファイルハンドル
 	// iip		: 入力ファイル情報構造体へのポインタ
-	// 戻り値	: TRUEなら成功
+	// 戻り値	: 成功時はtrueを返却
 	bool (*func_info_get)(INPUT_HANDLE ih, INPUT_INFO* iip);
 
 	// 画像データを読み込む関数へのポインタ
@@ -96,7 +96,7 @@ struct INPUT_PLUGIN_TABLE {
 	// 入力設定のダイアログを要求された時に呼ばれる関数へのポインタ (nullptrなら呼ばれません)
 	// hwnd			: ウィンドウハンドル
 	// dll_hinst	: インスタンスハンドル
-	// 戻り値		: TRUEなら成功
+	// 戻り値		: 成功時はtrueを返却
 	bool (*func_config)(HWND hwnd, HINSTANCE dll_hinst);
 
 	// 入力ファイルの読み込み対象トラックを設定する関数へのポインタ (FLAG_MULTI_TRACKが有効の時のみ呼ばれます)

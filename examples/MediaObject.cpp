@@ -3,10 +3,14 @@
 //----------------------------------------------------------------------------------
 #include <windows.h>
 #include <memory>
+#include <vector>
+#include <string>
 #include <algorithm>
 #include <d3d11.h>
 #include <wrl/client.h>
 using Microsoft::WRL::ComPtr;
+#include <DirectXMath.h>
+using namespace DirectX;
 
 #include "filter2.h"
 
@@ -16,11 +20,20 @@ bool func_proc_audio(FILTER_PROC_AUDIO* audio);
 //---------------------------------------------------------------------
 //	フィルタ設定項目定義
 //---------------------------------------------------------------------
+auto separator_image = FILTER_ITEM_SEPARATOR(L"画像");
 auto width = FILTER_ITEM_TRACK(L"横", 100, 1, 1000);
 auto height = FILTER_ITEM_TRACK(L"縦", 100, 1, 1000);
 auto color = FILTER_ITEM_COLOR(L"色", 0xffffff);
+auto file = FILTER_ITEM_FILE(L"画像ファイル", L"", L"ImageFile (*.bmp;*.jpg;*.png)\0*.bmp;*.jpg;*.png\0");
+FILTER_ITEM_SELECT::ITEM sample_list[] = { { L"draw_image()", 0 }, { L"draw_poly()", 1 }, { L"get_image_texture2d()", 2 }, { nullptr } };
+auto sample_type = FILTER_ITEM_SELECT(L"サンプル種類", 0, sample_list);
+auto separator_audio = FILTER_ITEM_SEPARATOR(L"音声");
 auto frequency = FILTER_ITEM_TRACK(L"周波数", 1000, 1, 24000);
-void* items[] = { &width, &height, &color, &frequency, nullptr };
+
+void* items[] = {
+	&separator_image, &width, &height, &color, &file, &sample_type,
+	&separator_audio, &frequency,
+	nullptr };
 
 //---------------------------------------------------------------------
 //	フィルタプラグイン構造体定義
@@ -63,32 +76,112 @@ bool func_proc_video(FILTER_PROC_VIDEO* video) {
 	auto h = (int)height.value;
 	if (w <= 0 || h <= 0) return false;
 
-	// 指定サイズの画像を設定してTexture2Dを取得
-	video->set_image_data(nullptr, w, h);
-	auto texture = video->get_image_texture2d();
+	// 複数の簡単なサンプル処理をリスト選択で切り替えています
+	switch (sample_type.value) {
 
-	// D3DのDevice,DeviceContextを取得
-	ComPtr<ID3D11Device> device;
-	texture->GetDevice(&device);
-	ComPtr<ID3D11DeviceContext> context;
-	device->GetImmediateContext(&context);
+		//-------------------------------------------------------------
+		// 画像ファイルから画像を取得して自前で描画するサンプル
+		//-------------------------------------------------------------
+		case 0:
+		{
+			// 画像ファイルのリソース名を作成
+			if (!*file.value) return false;
+			auto resource = std::wstring(L"image:") + file.value;
 
-	// Texture2DのRTVを取得
-	D3D11_TEXTURE2D_DESC desc{};
-	texture->GetDesc(&desc);
-	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc{};
-	rtvDesc.Format = desc.Format;
-	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-	ComPtr<ID3D11RenderTargetView> rtv;
-	if (FAILED(device->CreateRenderTargetView(texture, &rtvDesc, &rtv))) {
-		return false;
+			// 自前で画像を描画する
+			for (int i = 0; i < 16; i++) {
+				auto rz = 360.0f * i / 16.0f;
+				auto rad = XMConvertToRadians(rz);
+				auto x = (float)width.value * cosf(rad);
+				auto y = (float)height.value * sinf(rad);
+				video->draw_image(resource.c_str(), x, y, 0, 0, 0, rz, 1, 1, 1, 1);
+			}
+
+			video->set_default_anchor(0, 0); // 自前でアンカー枠を表示
+			return false; // 以降の処理を中断する
+		}
+
+		//-------------------------------------------------------------
+		// 画像ファイルから画像を取得して球体に描画するサンプル
+		//-------------------------------------------------------------
+		case 1:
+		{
+			// 画像ファイルのリソース名を作成
+			if (!*file.value) return false;
+			auto resource = std::wstring(L"image:") + file.value;
+
+			// 画像リソースを球体に描画する
+			int num = 20;
+			std::vector<VERTEX_TEXTURE_NORM> vertex;
+			vertex.reserve(num * num * 4);
+			for (int y = 0; y < num; y++) {
+				auto y0 = -(float)height.value * cosf(XM_PI * y / num);
+				auto r0 = +(float)width.value * sinf(XM_PI * y / num);
+				auto y1 = -(float)height.value * cosf(XM_PI * (y + 1) / num);
+				auto r1 = +(float)width.value * sinf(XM_PI * (y + 1) / num);
+				auto v0 = (float)y / num;
+				auto v1 = (float)(y + 1) / num;
+				for (int x = 0; x < num; x++) {
+					auto x0 = +r0 * sinf(XM_PI * 2 * x / num);
+					auto x1 = +r0 * sinf(XM_PI * 2 * (x + 1) / num);
+					auto x2 = +r1 * sinf(XM_PI * 2 * (x + 1) / num);
+					auto x3 = +r1 * sinf(XM_PI * 2 * x / num);
+					auto z0 = -r0 * cosf(XM_PI * 2 * x / num);
+					auto z1 = -r0 * cosf(XM_PI * 2 * (x + 1) / num);
+					auto z2 = -r1 * cosf(XM_PI * 2 * (x + 1) / num);
+					auto z3 = -r1 * cosf(XM_PI * 2 * x / num);
+					auto u0 = (float)x / num;
+					auto u1 = (float)(x + 1) / num;
+					// 4頂点のデータを追加していく
+					vertex.push_back({ x0, y0, z0, u0, v0, 1, x0, y0, z0 });
+					vertex.push_back({ x1, y0, z1, u1, v0, 1, x1, y0, z1 });
+					vertex.push_back({ x2, y1, z2, u1, v1, 1, x2, y1, z2 });
+					vertex.push_back({ x3, y1, z3, u0, v1, 1, x3, y1, z3 });
+				}
+			}
+			// 実際にポリゴンを描画する
+			video->set_material_shine(0.5f);
+			video->draw_poly(VERTEX_TYPE::QUAD_TEXTURE_NORM, vertex.data(), (int)vertex.size(), resource.c_str());
+
+			video->set_default_anchor((int)width.value * 2, (int)height.value * 2); // 自前でアンカー枠を表示
+			return false; // 以降の処理を中断する
+		}
+
+		//-------------------------------------------------------------
+		// D3Dを直接操作する特殊なサンプル ※通常は利用しません
+		//-------------------------------------------------------------
+		case 2:
+		{
+			// 指定サイズの画像を設定してTexture2Dを取得
+			video->set_image_data(nullptr, w, h);
+			auto texture = video->get_image_texture2d();
+
+			// D3DのDevice,DeviceContextを取得
+			ComPtr<ID3D11Device> device;
+			texture->GetDevice(&device);
+			ComPtr<ID3D11DeviceContext> context;
+			device->GetImmediateContext(&context);
+
+			// Texture2DのRTVを取得
+			D3D11_TEXTURE2D_DESC desc{};
+			texture->GetDesc(&desc);
+			D3D11_RENDER_TARGET_VIEW_DESC rtvDesc{};
+			rtvDesc.Format = desc.Format;
+			rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+			ComPtr<ID3D11RenderTargetView> rtv;
+			if (FAILED(device->CreateRenderTargetView(texture, &rtvDesc, &rtv))) {
+				return false;
+			}
+
+			// 指定の色で塗りつぶす
+			auto col = color.value;
+			const float color[4] = { col.r / 255.0f, col.g / 255.0f, col.b / 255.0f, 1.0f }; // 乗算済みアルファ
+			context->ClearRenderTargetView(rtv.Get(), color);
+			return true;
+		}
+
 	}
-
-	// 指定の色で塗りつぶす
-	auto col = color.value;
-	const float color[4] = { col.r / 255.0f, col.g / 255.0f, col.b / 255.0f, 1.0f }; // 乗算済みアルファ
-	context->ClearRenderTargetView(rtv.Get(), color);
-	return true;
+	return false;
 }
 
 //---------------------------------------------------------------------

@@ -13,12 +13,18 @@ bool func_proc_audio(FILTER_PROC_AUDIO* audio);
 //---------------------------------------------------------------------
 //	フィルタ設定項目定義
 //---------------------------------------------------------------------
+auto group_image = FILTER_ITEM_GROUP(L"画像");
 auto luminance = FILTER_ITEM_TRACK(L"明るさ", 1.0, 0.0, 2.0, 0.01);
 FILTER_ITEM_SELECT::ITEM component_list[] = { { L"R成分のみ", 1 }, { L"G成分のみ", 2 }, { L"B成分のみ", 4 }, { L"RGB成分", 7 }, { nullptr } };
 auto component = FILTER_ITEM_SELECT(L"対象", 7, component_list);
+auto group_audio = FILTER_ITEM_GROUP(L"音声");
 auto volume = FILTER_ITEM_TRACK(L"音量", 1.0, 0.0, 2.0, 0.01);
 auto mono = FILTER_ITEM_CHECK(L"モノラル化", false);
-void* items[] = { &luminance, &component, &volume, &mono, nullptr };
+
+void* items[] = {
+	&group_image, &luminance, &component,
+	&group_audio ,&volume, &mono,
+	nullptr };
 
 //---------------------------------------------------------------------
 //	フィルタプラグイン構造体定義

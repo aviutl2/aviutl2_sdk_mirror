@@ -139,7 +139,7 @@ task :convert_description do
           .split(/\\\[(\d{4}\/\d{1,2}\/\d{1,2})\]/)
           .drop(1)
           .each_slice(2)
-          .to_h do |date, change|
+          .map do |date, change|
             date.strip!
             change.strip!
             next if date.empty? || change.empty?

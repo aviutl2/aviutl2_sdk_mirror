@@ -38,7 +38,7 @@ typedef void* OBJECT_HANDLE;
 // トラックバー項目構造体
 // 例：FILTER_ITEM_TRACK track = { L"数値", 100.0, 0.0, 1000.0, 0.01 };
 struct FILTER_ITEM_TRACK {
-	FILTER_ITEM_TRACK(LPCWSTR name, double value, double s, double e, double step = 1.0, LPCWSTR zero_name = nullptr, double slider_ratio = 1.0)
+	FILTER_ITEM_TRACK(LPCWSTR name, double value, double s, double e, double step = 1.0, LPCWSTR zero_display = nullptr, double slider_ratio = 1.0)
 		: name(name), value(value), s(s), e(e), step(step), zero_display(zero_display), slider_ratio(slider_ratio) {}
 	LPCWSTR type = L"track2";	// 設定の種別 ※以前の"track"種別も互換対応されます
 	LPCWSTR name;				// 設定名

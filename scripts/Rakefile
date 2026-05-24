@@ -30,6 +30,7 @@ expected_files = %w[
   logger2.h
   config2.h
   cache2.h
+  credits.txt
   AviReader.cpp
   AviSaver.cpp
   MediaFilter.cpp

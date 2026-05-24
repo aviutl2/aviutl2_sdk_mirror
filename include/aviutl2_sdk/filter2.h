@@ -38,12 +38,27 @@ typedef void* OBJECT_HANDLE;
 // トラックバー項目構造体
 // 例：FILTER_ITEM_TRACK track = { L"数値", 100.0, 0.0, 1000.0, 0.01 };
 struct FILTER_ITEM_TRACK {
-	FILTER_ITEM_TRACK(LPCWSTR name, double value, double s, double e, double step = 1.0) : name(name), value(value), s(s), e(e), step(step) {}
-	LPCWSTR type = L"track";	// 設定の種別
+	FILTER_ITEM_TRACK(LPCWSTR name, double value, double s, double e, double step = 1.0, LPCWSTR zero_name = nullptr, double slider_ratio = 1.0)
+		: name(name), value(value), s(s), e(e), step(step), zero_display(zero_display), slider_ratio(slider_ratio) {}
+	LPCWSTR type = L"track2";	// 設定の種別 ※以前の"track"種別も互換対応されます
 	LPCWSTR name;				// 設定名
 	double value;				// 設定値 (フィルタ処理の呼び出し時に現在の値に更新されます)
 	const double s, e;			// 設定値の最小、最大
 	const double step;			// 設定値の単位( 1.0 / 0.1 / 0.01 / 0.001 ) ※0.0001以下も指定出来ますが最大最小値の範囲に応じて調整されます
+	LPCWSTR zero_display;		// ゼロ値名称 (設定値が0の時にトラックバーに表示する文字列)
+	const double slider_ratio;	// 操作倍率 (設定値の範囲に対してのトラックバー操作範囲の倍率)
+};
+
+// トラックバーグループ項目構造体
+// 例：FILTER_ITEM_TRACK_GROUP trackGroup = { L"Group", tracks };
+//     FILTER_ITEM_TRACK track0 = { ... }
+//     FILTER_ITEM_TRACK track1 = { ... }
+//     FILTER_ITEM_TRACK* tracks[] = { &track0, &track1, nullptr };
+struct FILTER_ITEM_TRACK_GROUP {
+	FILTER_ITEM_TRACK_GROUP(LPCWSTR name, FILTER_ITEM_TRACK** tracks) : name(name), tracks(tracks) {}
+	LPCWSTR type = L"trackgroup";	// 設定の種別
+	LPCWSTR name;					// 設定名
+	FILTER_ITEM_TRACK** tracks;		// トラックバー項目グループ (FILTER_ITEM_TRACKポインタを列挙してnull終端したリストへのポインタ) ※2か3項目のみ
 };
 
 // チェックボックス項目構造体
@@ -53,6 +68,15 @@ struct FILTER_ITEM_CHECK {
 	LPCWSTR type = L"check";	// 設定の種別
 	LPCWSTR name;				// 設定名
 	bool value;					// 設定値 (フィルタ処理の呼び出し時に現在の値に更新されます)
+};
+
+// チェックボックス(セクション毎)項目構造体
+// 例：FILTER_ITEM_CHECK_SECTION check = { L"チェック", false };
+struct FILTER_ITEM_CHECK_SECTION {
+	FILTER_ITEM_CHECK_SECTION(LPCWSTR name, bool value) : name(name), value(value) {}
+	LPCWSTR type = L"checksection";	// 設定の種別
+	LPCWSTR name;					// 設定名
+	bool value;						// 設定値 (フィルタ処理の呼び出し時に現在の値に更新されます)
 };
 
 // 色選択項目構造体
@@ -169,12 +193,14 @@ struct FILTER_ITEM_SEPARATOR {
 //----------------------------------------------------------------------------------
 
 // 頂点データ構造体(描画色)
+// { x, y, z, r, g, b, a }
 struct VERTEX_COLOR {
 	float x, y, z;		// 頂点座標
 	float r, g, b, a;	// 頂点の色(0.0〜1.0の乗算済みα)
 };
 
 // 頂点データ構造体(描画色、法線)
+// { x, y, z, r, g, b, a, vx, vy, vz }
 struct VERTEX_COLOR_NORM {
 	float x, y, z;		// 頂点座標
 	float r, g, b, a;	// 頂点の色(0.0〜1.0の乗算済みα)
@@ -182,6 +208,7 @@ struct VERTEX_COLOR_NORM {
 };
 
 // 頂点データ構造体(テクスチャ)
+// { x, y, z, u, v, a }
 struct VERTEX_TEXTURE {
 	float x, y, z;		// 頂点座標
 	float u, v;			// テクスチャー座標(0.0〜1.0の正規化座標)
@@ -189,6 +216,7 @@ struct VERTEX_TEXTURE {
 };
 
 // 頂点データ構造体(テクスチャ、法線)
+// { x, y, z, u, v, a, vx, vy, vz }
 struct VERTEX_TEXTURE_NORM {
 	float x, y, z;		// 頂点座標
 	float u, v;			// テクスチャー座標(0.0〜1.0の正規化座標)
@@ -206,15 +234,6 @@ enum class VERTEX_TYPE : int {
 	QUAD_COLOR_NORM			= 6,	// 四角形のVERTEX_COLOR_NORMのリスト (頂点数は4の倍数になる)
 	QUAD_TEXTURE			= 7,	// 四角形のVERTEX_TEXTUREのリスト (頂点数は4の倍数になる)
 	QUAD_TEXTURE_NORM		= 8,	// 四角形のVERTEX_TEXTURE_NORMのリスト (頂点数は4の倍数になる)
-};
-
-// サンプラーの種別
-enum class SAMPLER_MODE : int {
-	CLIP	= 0,	// 領域外は透明色
-	CLAMP	= 1,	// 領域外は一番外側の色
-	LOOP	= 2,	// 領域外はループ
-	MIRROR	= 3,	// 領域外は領域を反転しながらループ
-	DOT		= 4,	// 拡大縮小補間をしない(領域外は透明色)
 };
 
 // 合成モードの種別
@@ -240,6 +259,23 @@ enum class BILLBOARD_MODE : int {
 	SIDE		= 1,	// 横方向のみカメラに向ける
 	DIRECTION	= 2,	// 縦横方向のみカメラに向ける
 	CAMERA		= 3,	// カメラに向ける
+};
+
+// サンプラー(SampleState)の種別
+enum class SAMPLER_MODE : int {
+	CLIP	= 0,	// 領域外は透明色
+	CLAMP	= 1,	// 領域外は一番外側の色
+	LOOP	= 2,	// 領域外はループ
+	MIRROR	= 3,	// 領域外は領域を反転しながらループ
+	DOT		= 4,	// 拡大縮小補間をしない(領域外は透明色)
+};
+
+// 出力ブレンド(BlendState)の種別
+enum class BLEND_STATE_MODE : int {
+	COPY	= 0,	// 出力をそのままコピー
+	MASK	= 1,	// α値のみを乗算 ※RGB値は利用されません
+	DRAW	= 2,	// 出力をアルファブレンド
+	ADD		= 3,	// 出力を加算合成
 };
 
 //----------------------------------------------------------------------------------
@@ -298,6 +334,8 @@ struct OBJECT_AUDIO_PARAM {
 
 // d3d11.h向けの前方宣言 ※includeしないで良いように定義
 struct ID3D11Texture2D;
+struct ID3D11BlendState;
+struct ID3D11SamplerState;
 
 // 画像フィルタ処理用構造体
 struct FILTER_PROC_VIDEO {
@@ -316,13 +354,13 @@ struct FILTER_PROC_VIDEO {
 	// width,height	: 画像サイズ
 	void (*set_image_data)(PIXEL_RGBA* buffer, int width, int height);
 
-	// 現在のオブジェクトの画像データのポインタを取得する (ID3D11Texture2Dのポインタを取得します) 
-	// 戻り値		: オブジェクトの画像データへのポインタ
+	// 現在のオブジェクトのD3D画像リソースのポインタを取得する (ID3D11Texture2Dのポインタを取得します) 
+	// 戻り値		: オブジェクト画像のID3D11Texture2Dのポインタ
 	//				  ※現在の画像が変更(set_image_data)されるかフィルタ処理の終了まで有効
 	ID3D11Texture2D* (*get_image_texture2d)();
 
-	// 現在のフレームバッファの画像データのポインタを取得する (ID3D11Texture2Dのポインタを取得します) 
-	// 戻り値		: フレームバッファの画像データへのポインタ
+	// 現在のフレームバッファのD3D画像リソースのポインタを取得する (ID3D11Texture2Dのポインタを取得します) 
+	// 戻り値		: フレームバッファのID3D11Texture2Dのポインタ
 	//				  ※フィルタ処理の終了まで有効
 	ID3D11Texture2D* (*get_framebuffer_texture2d)();
 
@@ -350,31 +388,34 @@ struct FILTER_PROC_VIDEO {
 	OBJECT_HANDLE (*get_image_object)(int layer, double offset);
 
 	// 指定の画像リソースをフレームバッファに描画します
-	// image	: 画像リソース名 ※nullptrの場合は現在のオブジェクト
-	//			  "tempbuffer"=仮想バッファ
-	//			  "cache:xxxx"=キャッシュバッファ(xxxxは任意の名前)
-	//			  "image:xxxx"=画像ファイル(xxxxは画像ファイルパス) ※画像はVRAMにキャッシュされます
+	// resource	: 画像リソース名
+	//			  "object"			= 現在のオブジェクト ※nullptrの指定でも現在のオブジェクトになります
+	//			  "resource:xxxx"	= 標準リソース(xxxxは任意の名前)
+	//			  "tempbuffer"		= 仮想バッファ
+	//			  "cache:xxxx"		= キャッシュバッファ(xxxxは任意の名前)
+	//			  "image:xxxx"		= 画像ファイル(xxxxは画像ファイルパス) ※画像はVRAMにキャッシュされます
 	// x,y,z	: 基準座標
 	// rx,ry,rz	: 回転角度 (360.0で1回転)
 	// sx,sy,sz	: 拡大率 (1.0=等倍)
 	// alpha	: 不透明度 (0.0〜1.0/0.0=透明/1.0=不透明)
 	// 戻り値	: 失敗した場合はfalse (画像リソース名が不正な場合等)
-	bool (*draw_image)(LPCWSTR image, float x, float y, float z, float rx, float ry, float rz, float sx, float sy, float sz, float alpha);
+	bool (*draw_image)(LPCWSTR resource, float x, float y, float z, float rx, float ry, float rz, float sx, float sy, float sz, float alpha);
 
 	// 指定の頂点リストのポリゴンをフレームバッファに描画します
 	// vertex_type	: 頂点リストの種別
 	// vertex_list	: 頂点データリストへのポインタ (指定した種別の頂点データバッファへのポインタ)
 	// vertex_num	: 頂点リストの頂点数 (頂点データの数)
-	// image		: テクスチャ画像リソース名 (必要な場合のみ) ※nullptrの場合は現在のオブジェクト
-	//				  "tempbuffer"=仮想バッファ
-	//				  "cache:xxxx"=キャッシュバッファ(xxxxは任意の名前)
-	//				  "image:xxxx"=画像ファイル(xxxxは画像ファイルパス) ※画像はVRAMにキャッシュされます
+	// resource		: テクスチャ画像リソース名 ※テクスチャ付きの場合のみ利用 
+	//				  "object"			= 現在のオブジェクト ※nullptrの指定でも現在のオブジェクトになります
+	//				  "resource:xxxx"	= 標準リソース(xxxxは任意の名前)
+	//				  "tempbuffer"		= 仮想バッファ
+	//				  "cache:xxxx"		= キャッシュバッファ(xxxxは任意の名前)
+	//				  "image:xxxx"		= 画像ファイル(xxxxは画像ファイルパス) ※画像はVRAMにキャッシュされます
 	// 戻り値		: 失敗した場合はfalse (頂点数が不正な場合等)
-	bool (*draw_poly)(VERTEX_TYPE vertex_type, void* vertex_list, int vertex_num, LPCWSTR image);
+	bool (*draw_poly)(VERTEX_TYPE vertex_type, void* vertex_list, int vertex_num, LPCWSTR resource);
 
-	// 標準のアンカー枠を設定します ※通常は自動で設定されます
-	// draw_image()などを利用してオブジェクトの描画を自身で処理して
-	// func_proc_video()の返却をfalseにする場合に利用します
+	// 標準のアンカー枠を設定します ※func_proc_video()でtrueを返却した場合は自動で設定されます
+	// draw_image()などを利用してオブジェクトの描画を全て自身で処理する場合に利用します
 	// width,height		: オブジェクトのサイズ ※0を指定すると固定サイズのアンカー枠になります
 	void (*set_default_anchor)(int width, int height);
 
@@ -403,14 +444,168 @@ struct FILTER_PROC_VIDEO {
 	// 画像リソースを作成する (VRAMへデータを書き込みます)
 	// 画像リソースはdraw_image()などの描画に利用出来ます
 	// ※既に存在する画像リソース名を指定した場合はリソースを更新します
-	// image		: 画像リソース名 ※nullptrの場合は現在のオブジェクト
-	//				  "tempbuffer"=仮想バッファ
-	//				  "cache:xxxx"=キャッシュバッファ(xxxxは任意の名前)
+	// resource		: 作成する画像リソース名
+	//				  "object"			= 現在のオブジェクト ※nullptrの指定でも現在のオブジェクトになります
+	//				  "resource:xxxx"	= 標準リソース(xxxxは任意の名前) ※フィルタ処理後に破棄されます
+	//				  "tempbuffer"		= 仮想バッファ ※内部実装はキャッシュバッファと同じ
+	//				  "cache:xxxx"		= キャッシュバッファ(xxxxは任意の名前) ※レンダリング処理共用のキャッシュバッファ
 	// buffer		: 画像データへのポインタ (nullptrの場合は初期データ無しで画像サイズを変更します)
 	// width,height	: 画像サイズ
-	void (*create_image_resource)(LPCWSTR image, PIXEL_RGBA* buffer, int width, int height);
+	void (*create_image_resource)(LPCWSTR resource, PIXEL_RGBA* buffer, int width, int height);
+
+	// 指定の画像リソースのD3D画像リソースのポインタを取得する (ID3D11Texture2Dのポインタを取得します) 
+	// resource	: 画像リソース名
+	//			  "object"			= 現在のオブジェクト ※nullptrの指定でも現在のオブジェクトになります
+	//			  "resource:xxxx"	= 標準リソース(xxxxは任意の名前)
+	//			  "tempbuffer"		= 仮想バッファ
+	//			  "cache:xxxx"		= キャッシュバッファ(xxxxは任意の名前)
+	//			  "image:xxxx"		= 画像ファイル(xxxxは画像ファイルパス) ※画像はVRAMにキャッシュされます
+	//			  "random"			= 乱数バッファ(0.0〜1.0の乱数値の256x256の領域) ※DXGI_FORMAT_R32_FLOAT(r値のみ)になります
+	// 戻り値	: 画像リソースのID3D11Texture2Dのポインタ (指定リソースが無い場合はnullptrを返却)
+	//			  ※画像リソースが変更されるかフィルタ処理の終了まで有効
+	ID3D11Texture2D* (*get_image_resource_texture2d)(LPCWSTR resource);
+
+	// 画像リソースをコピーする (VRAM間でコピーします)
+	// dst_resource	: コピー先の画像リソース名
+	//				  ※既に存在する画像リソース名を指定した場合はリソースを更新します
+	//				  "object"			= 現在のオブジェクト ※nullptrの指定でも現在のオブジェクトになります
+	//				  "resource:xxxx"	= 標準リソース(xxxxは任意の名前) ※フィルタ処理後に破棄されます
+	//				  "tempbuffer"		= 仮想バッファ ※内部実装はキャッシュバッファと同じ
+	//				  "cache:xxxx"		= キャッシュバッファ(xxxxは任意の名前) ※レンダリング処理共用のキャッシュバッファ
+	// src_resource	: コピー元の画像リソース名
+	//				  "object"			= 現在のオブジェクト ※nullptrの指定でも現在のオブジェクトになります
+	//				  "resource:xxxx"	= 標準リソース(xxxxは任意の名前)
+	//				  "framebuffer"		= フレームバッファ
+	//				  "tempbuffer"		= 仮想バッファ
+	//				  "cache:xxxx"		= キャッシュバッファ(xxxxは任意の名前)
+	//				  "image:xxxx"		= 画像ファイル(xxxxは画像ファイルパス) ※画像はVRAMにキャッシュされます
+	//				  "random"			= 乱数バッファ(0.0〜1.0の乱数値の256x256の領域) ※DXGI_FORMAT_R32_FLOAT(r値のみ)になります
+	// 戻り値		: 失敗した場合はfalse (画像リソース名が不正な場合等)
+	bool (*copy_image_resource)(LPCWSTR dst_resource, LPCWSTR src_resource);
+
+	// 画像リソースをクリアする (VRAMを直接クリアします)
+	// resource		: クリアする画像リソース名
+	//				  "object"			= 現在のオブジェクト ※nullptrの指定でも現在のオブジェクトになります
+	//				  "resource:xxxx"	= 標準リソース(xxxxは任意の名前)
+	//				  "tempbuffer"		= 仮想バッファ
+	//				  "cache:xxxx"		= キャッシュバッファ(xxxxは任意の名前)
+	// color		: クリアする色
+	// 戻り値		: 失敗した場合はfalse (画像リソース名が不正な場合等)
+	bool (*clear_image_resource)(LPCWSTR resource, PIXEL_RGBA color);
+
+	// 指定の画像リソースを描画先の画像リソースに描画します
+	// dst_resource	: 描画先の画像リソース名
+	//				  "object"			= 現在のオブジェクト ※nullptrの指定でも現在のオブジェクトになります
+	//				  "resource:xxxx"	= 標準リソース(xxxxは任意の名前)
+	//				  "tempbuffer"		= 仮想バッファ
+	//				  "cache:xxxx"		= キャッシュバッファ(xxxxは任意の名前)
+	// src_resource	: 画像リソース名
+	//				  "object"			= 現在のオブジェクト ※nullptrの指定でも現在のオブジェクトになります
+	//				  "resource:xxxx"	= 標準リソース(xxxxは任意の名前)
+	//				  "tempbuffer"		= 仮想バッファ
+	//				  "cache:xxxx"		= キャッシュバッファ(xxxxは任意の名前)
+	//				  "image:xxxx"		= 画像ファイル(xxxxは画像ファイルパス) ※画像はVRAMにキャッシュされます
+	// x,y,z		: 基準座標
+	// rx,ry,rz		: 回転角度 (360.0で1回転)
+	// sx,sy,sz		: 拡大率 (1.0=等倍)
+	// alpha		: 不透明度 (0.0〜1.0/0.0=透明/1.0=不透明)
+	// 戻り値		: 失敗した場合はfalse (画像リソース名が不正な場合等)
+	bool (*draw_image_to_resource)(LPCWSTR dst_resource, LPCWSTR src_resource, float x, float y, float z, float rx, float ry, float rz, float sx, float sy, float sz, float alpha);
+
+	// 指定の頂点リストのポリゴンを描画先の画像リソースに描画します
+	// dst_resource	: 描画先の画像リソース名
+	//				  "object"			= 現在のオブジェクト ※nullptrの指定でも現在のオブジェクトになります
+	//				  "resource:xxxx"	= 標準リソース(xxxxは任意の名前)
+	//				  "tempbuffer"		= 仮想バッファ
+	//				  "cache:xxxx"		= キャッシュバッファ(xxxxは任意の名前)
+	// vertex_type	: 頂点リストの種別
+	// vertex_list	: 頂点データリストへのポインタ (指定した種別の頂点データバッファへのポインタ)
+	// vertex_num	: 頂点リストの頂点数 (頂点データの数)
+	// src_resource	: テクスチャ画像リソース名 ※テクスチャ付きの場合のみ利用 
+	//				  "object"			= 現在のオブジェクト ※nullptrの指定でも現在のオブジェクトになります
+	//				  "resource:xxxx"	= 標準リソース(xxxxは任意の名前)
+	//				  "tempbuffer"		= 仮想バッファ
+	//				  "cache:xxxx"		= キャッシュバッファ(xxxxは任意の名前)
+	//				  "image:xxxx"		= 画像ファイル(xxxxは画像ファイルパス) ※画像はVRAMにキャッシュされます
+	// 戻り値		: 失敗した場合はfalse (頂点数が不正な場合等)
+	bool (*draw_poly_to_resource)(LPCWSTR dst_resource, VERTEX_TYPE vertex_type, void* vertex_list, int vertex_num, LPCWSTR src_resource);
+
+	// ピクセルシェーダーを実行します
+	// cso_file			: コンパイル済みピクセルシェーダーのバイナリファイル名 ※ファイル名部分のみ
+	//					  プラグインと同じフォルダのファイルから読み込んでキャッシュします
+	//					  ※ピクセルシェーダー5.0でコンパイルしたものが利用出来ます
+	//					  ピクセルシェーダーの入力は下記が利用できます
+	//						float4 psmain(float4 pos : SV_Position) : SV_Target
+	//						float4 psmain(float4 pos : SV_Position, float2 uv : TEXCOORD) : SV_Target
+	//					  ※シェーダーリフレクションを利用してシグネチャから判別しています
+	// target			: 出力先の画像リソース名
+	//					  Direct3Dのレンダーターゲットに設定されます
+	//					  "object"			= 現在のオブジェクト ※nullptrの指定でも現在のオブジェクトになります
+	//					  "resource:xxxx"	= 標準リソース(xxxxは任意の名前)
+	//					  "framebuffer"		= フレームバッファ
+	//					  "tempbuffer"		= 仮想バッファ
+	//					  "cache:xxxx"		= キャッシュバッファ(xxxxは任意の名前)
+	// resource_list	: 参照する画像リソース名のリストへのポインタ ※nullptrの場合は設定無し
+	//					  Direct3Dのシェーダーリソース(t0〜)に設定されます ※レンダーターゲットと同じリソースは利用出来ません
+	//					  "object"			= 現在のオブジェクト ※nullptrの指定でも現在のオブジェクトになります
+	//					  "resource:xxxx"	= 標準リソース(xxxxは任意の名前)
+	//					  "tempbuffer"		= 仮想バッファ
+	//					  "cache:xxxx"		= キャッシュバッファ(xxxxは任意の名前)
+	//					  "image:xxxx"		= 画像ファイル(xxxxは画像ファイルパス) ※画像はVRAMにキャッシュされます
+	//					  "random"			= 乱数バッファ(0.0〜1.0の乱数値の256x256の領域) ※DXGI_FORMAT_R32_FLOAT(r値のみ)になります
+	// resource_num		: 参照する画像リソースの数
+	// constant			: 定数バッファへのポインタ ※nullptrの場合は定数バッファの設定無し
+	//					  Direct3Dの定数バッファ(b0)に設定します
+	// constant_size	: 定数バッファのサイズ
+	// blend_state		: Direct3DのBlendStateを設定します ※nullptrの場合は出力をそのままコピー
+	// sampler_state	: Direct3DのSamplerState(s0)を設定します ※nullptrの場合は設定無し
+	// 戻り値			: 失敗した場合はfalse (画像リソース名が不正な場合等)
+	bool (*exec_pixelshader)(LPCWSTR cso_file, LPCWSTR target, LPCWSTR* resource_list, int resource_num, void* constant, int constant_size, ID3D11BlendState* blend_state, ID3D11SamplerState* sampler_state);
+
+	// コンピュートシェーダーを実行します
+	// cso_file			: コンパイル済みコンピュートシェーダーのバイナリファイル名 ※ファイル名部分のみ
+	//					  プラグインと同じフォルダのファイルから読み込んでキャッシュします
+	//					  ※コンピュートシェーダー5.0でコンパイルしたものが利用出来ます
+	// target_list		: 読み書き先の画像リソース名のリストへのポインタ
+	//					  Direct3DのUnorderedAccessリソース(u0〜)に設定されます
+	//					  "object"			= 現在のオブジェクト ※nullptrの指定でも現在のオブジェクトになります
+	//					  "resource:xxxx"	= 標準リソース(xxxxは任意の名前)
+	//					  "framebuffer"		= フレームバッファ
+	//					  "tempbuffer"		= 仮想バッファ
+	//					  "cache:xxxx"		= キャッシュバッファ(xxxxは任意の名前)
+	// target_num		: 読み書き先の画像リソースの数
+	// resource_list	: 参照する画像リソース名のリストへのポインタ ※nullptrの場合は設定無し
+	//					  Direct3Dのシェーダーリソース(t0〜)に設定されます ※UnorderedAccessリソースと同じリソースは利用出来ません
+	//					  "object"			= 現在のオブジェクト ※nullptrの指定でも現在のオブジェクトになります
+	//					  "resource:xxxx"	= 標準リソース(xxxxは任意の名前)
+	//					  "tempbuffer"		= 仮想バッファ
+	//					  "cache:xxxx"		= キャッシュバッファ(xxxxは任意の名前)
+	//					  "image:xxxx"		= 画像ファイル(xxxxは画像ファイルパス) ※画像はVRAMにキャッシュされます
+	//					  "random"			= 乱数バッファ(0.0〜1.0の乱数値の256x256の領域) ※DXGI_FORMAT_R32_FLOAT(r値のみ)になります
+	// resource_num		: 参照する画像リソースの数
+	// constant			: 定数バッファへのポインタ ※nullptrの場合は定数バッファの設定無し
+	//					  Direct3Dの定数バッファ(b0)に設定します
+	// constant_size	: 定数バッファのサイズ
+	// count_x			: X軸スレッドグループ数
+	// count_y			: Y軸スレッドグループ数
+	// count_z			: Z軸スレッドグループ数
+	// sampler_state	: Direct3DのSamplerState(s0)を設定します ※nullptrの場合は設定無し
+	// 戻り値			: 失敗した場合はfalse (画像リソース名が不正な場合等)
+	bool (*exec_computeshader)(LPCWSTR cso_file, LPCWSTR* target_list, int target_num, LPCWSTR* resource_list, int resource_num, void* constant, int constant_size, int count_x, int count_y, int count_z, ID3D11SamplerState* sampler_state);
+
+	// 定義済みのD3Dの出力ブレンドのリソースのポインタを取得する (ID3D11BlendStateのポインタを取得します) 
+	// blend	: 出力ブレンド種別
+	// 戻り値	: ID3D11BlendStateのポインタ (指定種別が無い場合はnullptrを返却)
+	ID3D11BlendState* (*get_blend_state)(BLEND_STATE_MODE blend);
+
+	// 定義済みのD3Dのサンプラーのリソースのポインタを取得する (ID3D11SamplerStateのポインタを取得します) 
+	// sampler	: サンプラー種別
+	// 戻り値	: ID3D11SamplerStateのポインタ (指定種別が無い場合はnullptrを返却)
+	ID3D11SamplerState* (*get_sampler_state)(SAMPLER_MODE sampler);
 
 };
+
+//----------------------------------------------------------------------------------
 
 // 音声フィルタ処理用構造体
 struct FILTER_PROC_AUDIO {
@@ -472,9 +667,11 @@ struct FILTER_PLUGIN_TABLE {
 	void** items;				// 設定項目の定義 (FILTER_ITEM_XXXポインタを列挙してnull終端したリストへのポインタ)
 
 	// 画像フィルタ処理関数へのポインタ (FLAG_VIDEOが有効の時のみ呼ばれます)
+	// 戻り値	: falseを返却すると以降のフィルタや出力処理が中断されます
 	bool (*func_proc_video)(FILTER_PROC_VIDEO* video);
 
 	// 音声フィルタ処理関数へのポインタ (FLAG_AUDIOが有効の時のみ呼ばれます)
+	// 戻り値	: falseを返却すると以降のフィルタや出力処理が中断されます
 	bool (*func_proc_audio)(FILTER_PROC_AUDIO* audio);
 
 };

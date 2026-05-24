@@ -1,5 +1,15 @@
 # 変更履歴
 
+## 2026/5/24
+
+- \[aux2] get_object_alias()が複数スレッドから同時に呼ばれた時に正しく取得出来ないのを修正
+- \[aux2] EDIT_SECTIONの参照時の排他制御を調整
+- \[aux2] 汎用プラグインのUninitializePluginのタイミングを調整
+- \[auf2] FILTER_ITEM_CHECK_SECTION,FILTER_ITEM_TRACK_GROUPを追加
+- \[auf2] FILTER_ITEM_TRACKの引数を追加
+- \[auf2] FILTER_PROC_VIDEOに幾つかの関数を追加
+- \[auf2] サンプルフィルタプラグインを更新
+
 ## 2026/5/17
 
 - \[auf2] OBJECT_INFOにlayer,index,numを追加

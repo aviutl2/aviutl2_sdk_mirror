@@ -25,7 +25,12 @@ auto width = FILTER_ITEM_TRACK(L"横", 100, 1, 1000);
 auto height = FILTER_ITEM_TRACK(L"縦", 100, 1, 1000);
 auto color = FILTER_ITEM_COLOR(L"色", 0xffffff);
 auto file = FILTER_ITEM_FILE(L"画像ファイル", L"", L"ImageFile (*.bmp;*.jpg;*.png)\0*.bmp;*.jpg;*.png\0");
-FILTER_ITEM_SELECT::ITEM sample_list[] = { { L"draw_image()", 0 }, { L"draw_poly()", 1 }, { L"get_image_texture2d()", 2 }, { nullptr } };
+FILTER_ITEM_SELECT::ITEM sample_list[] = {
+	{ L"draw_image()", 0 },
+	{ L"draw_poly()", 1 },
+	{ L"exec_pixelshader()", 2 },
+	{ L"get_image_texture2d()", 3 },
+	{ nullptr } };
 auto sample_type = FILTER_ITEM_SELECT(L"サンプル種類", 0, sample_list);
 auto separator_audio = FILTER_ITEM_SEPARATOR(L"音声");
 auto frequency = FILTER_ITEM_TRACK(L"周波数", 1000, 1, 24000);
@@ -148,9 +153,34 @@ bool func_proc_video(FILTER_PROC_VIDEO* video) {
 		}
 
 		//-------------------------------------------------------------
-		// D3Dを直接操作する特殊なサンプル ※通常は利用しません
+		// 画像ファイルから画像を取得して色を乗算して出力するサンプル
 		//-------------------------------------------------------------
 		case 2:
+		{
+			// オブジェクトを指定サイズに変更
+			video->set_image_data(nullptr, w, h);
+
+			// 画像ファイルのリソース名を作成
+			if (!*file.value) return false;
+			auto image = std::wstring(L"image:") + file.value;
+
+			// 色設定を取得して定数バッファのデータ作成
+			struct CONSTANT {
+				float r, g, b, a;
+			};
+			CONSTANT constant = { color.value.r / 255.0f, color.value.g / 255.0f, color.value.b / 255.0f, 1.0f };
+
+			// ピクセルシェーダーを利用してオブジェクトの画像を作成
+			// 画像リソースに色を乗算してオブジェクトに出力する
+			LPCWSTR resources[] = { image.c_str() };
+			video->exec_pixelshader(L"MediaObject.cso", nullptr, resources, 1, &constant, sizeof(constant), nullptr, nullptr);
+			return true;
+		}
+
+		//-------------------------------------------------------------
+		// D3Dを直接操作する特殊なサンプル ※D3Dに詳しい人向け
+		//-------------------------------------------------------------
+		case 3:
 		{
 			// 指定サイズの画像を設定してTexture2Dを取得
 			video->set_image_data(nullptr, w, h);

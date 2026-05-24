@@ -132,3 +132,6 @@ SamplePackage.au2pkg.zip
 
 AviUtl ExEdit2 Plugin SDK は MIT License の元で公開されています。  
 ライセンスについては付属の license.txt をご覧ください。
+
+サンプルコードで利用しているライブラリのライセンス等は
+付属の credits.txt に纏めて記載しています。

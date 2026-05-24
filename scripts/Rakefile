@@ -3,6 +3,7 @@ task default: %i[
        prepare
        download_sdk
        convert_description
+       convert_credits
        copy_and_reencode
      ]
 
@@ -169,6 +170,39 @@ task :convert_description do
   write_and_format("../CHANGELOG.md", changelog_lines.join("\n"))
 end
 
+task :convert_credits do
+  original = File.read("./tmp/aviutl2_sdk/credits.txt")
+  lines = ["# credits.txt", ""]
+
+  current_paragraph = []
+  current_section = nil
+  original.gsub("\r\n", "\n").lines.each do |paragraph|
+    if paragraph.match(/^- (.+) -$/)
+      section_name = $1.strip
+      if current_section
+        lines << "## #{current_section}"
+        lines << "```"
+        lines << current_paragraph.join("\n").strip
+        lines << "```"
+        lines << ""
+      end
+      current_section = section_name
+      current_paragraph = []
+    else
+      current_paragraph << paragraph.sub(/^        /, "").chomp
+    end
+  end
+  if current_section
+    lines << "## #{current_section}"
+    lines << "```"
+    lines << current_paragraph.join("\n").strip
+    lines << "```"
+    lines << ""
+  end
+
+  write_and_format("../CREDITS.md", lines.join("\n"))
+end
+
 def reencode(file_path, from_encoding, to_encoding)
   content = File.read(file_path, encoding: from_encoding)
   content.gsub!(/\r\n/, "\n") # Normalize line endings
@@ -201,7 +235,6 @@ task :copy_and_reencode do
     "logger2.h" => "include/aviutl2_sdk/logger2.h",
     "config2.h" => "include/aviutl2_sdk/config2.h",
     "cache2.h" => "include/aviutl2_sdk/cache2.h",
-    "credits.txt" => "CREDITS.txt",
     "AviReader.cpp" => "examples/AviReader.cpp",
     "AviSaver.cpp" => "examples/AviSaver.cpp",
     "MediaFilter.cpp" => "examples/MediaFilter.cpp",

@@ -1,5 +1,14 @@
 # 変更履歴
 
+## 2026/5/30
+
+- \[aux2] 汎用プラグインのUninitializePluginのタイミングを調整
+- \[auf2] 画像と音声を両対応した時に設定値が正しく取得出来ないことがあるのを修正
+- \[auf2] FILTER_PROC_VIDEOのシェーダー実行の関数名を変更
+- \[auf2] FILTER_PROC_VIDEOに幾つかの関数を追加、引数の修飾子を調整
+- \[aux2] EDIT_HANDLEに幾つかの関数を追加
+- \[cache2] CACHE_HANDLEに幾つかの関数を追加
+
 ## 2026/5/24
 
 - \[auf2] FILTER_ITEM_TRACKの引数名を修正

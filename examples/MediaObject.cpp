@@ -173,7 +173,7 @@ bool func_proc_video(FILTER_PROC_VIDEO* video) {
 			// ピクセルシェーダーを利用してオブジェクトの画像を作成
 			// 画像リソースに色を乗算してオブジェクトに出力する
 			LPCWSTR resources[] = { image.c_str() };
-			video->exec_pixelshader(L"MediaObject.cso", nullptr, resources, 1, &constant, sizeof(constant), nullptr, nullptr);
+			video->exec_pixelshader_file(L"MediaObject.cso", nullptr, resources, 1, &constant, sizeof(constant), nullptr, nullptr);
 			return true;
 		}
 

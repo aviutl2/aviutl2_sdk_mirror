@@ -38,6 +38,7 @@ struct FILTER_PLUGIN_TABLE;
 struct SCRIPT_MODULE_TABLE;
 struct EDIT_HANDLE;
 struct PROJECT_FILE;
+struct PIXEL_RGBA;
 
 // 汎用プラグイン構造体
 struct COMMON_PLUGIN_TABLE {
@@ -451,6 +452,34 @@ struct EDIT_HANDLE {
 	static constexpr int EFFECT_ITEM_TYPE_FIGURE	= 14;	// 図形
 	static constexpr int EFFECT_ITEM_TYPE_DATA		= 15;	// データ
 	static constexpr int EFFECT_ITEM_TYPE_FOLDER	= 16;	// フォルダ
+
+	// 現在のシーンの映像のレンダリングをします
+	// この関数はレンダリングのタスクを追加するのみで完了します
+	// レンダリング完了時はレンダリング用スレッドからコールバック関数が呼ばれます
+	// frame						: レンダリング対象のフレーム
+	// param						: 任意のユーザーデータのポインタ
+	// func_proc_rendering_video	: レンダリング完了時に呼ばれるコールバック関数
+	//	buffer						: レンダリングした画像データへのポインタ ※PIXEL_RGBA形式
+	//	width,height				: レンダリングした画像サイズ
+	//	pitch						: レンダリングした画像データの横1ラインのバイト数
+	// 戻り値						: レンダリング要求が成功した場合はtrue (出力中等は失敗します)
+	bool (*rendering_scene_video)(int frame, void* param, void (*func_proc_rendering_video)(void* param, int frame, const void* buffer, int width, int height, int pitch));
+
+	// 現在のシーンの音声のレンダリングをします
+	// この関数はレンダリングのタスクを追加するのみで完了します
+	// レンダリング完了時はレンダリング用スレッドからコールバック関数が呼ばれます
+	// frame						: レンダリング対象のフレーム
+	// param						: 任意のユーザーデータのポインタ
+	// func_proc_rendering_audio	: レンダリング完了時に呼ばれるコールバック関数
+	//	buffer0						: レンダリングした音声データ(左チャンネル)へのポインタ ※PCM(float)32bit形式
+	//	buffer1						: レンダリングした音声データ(右チャンネル)へのポインタ ※PCM(float)32bit形式
+	//	sample_num					: レンダリングした音声のサンプル数
+	// 戻り値						: レンダリング要求が成功した場合はtrue (出力中等は失敗します)
+	bool (*rendering_scene_audio)(int frame, void* param, void (*func_proc_rendering_audio)(void* param, int frame, const float* buffer0, const float* buffer1, int sample_num));
+
+	// レンダリング中のタスクが全て完了するまで待機します
+	// ※参照ロック、編集ロック状態で呼び出すとデットロックする可能性があります
+	void (*wait_rendering_task)();
 
 };
 

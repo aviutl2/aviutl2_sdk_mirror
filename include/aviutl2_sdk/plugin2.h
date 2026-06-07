@@ -39,6 +39,7 @@ struct SCRIPT_MODULE_TABLE;
 struct EDIT_HANDLE;
 struct PROJECT_FILE;
 struct PIXEL_RGBA;
+struct IDWriteFontCollection;
 
 // 汎用プラグイン構造体
 struct COMMON_PLUGIN_TABLE {
@@ -81,6 +82,17 @@ struct MODULE_INFO {
 	static constexpr int TYPE_PLUGIN_COMMON	= 9;	// 汎用プラグイン
 	LPCWSTR name;
 	LPCWSTR information;
+};
+
+// トラックバー情報構造体
+struct TRACK_INFO {
+	LPCWSTR mode;		// トラックバーの移動モードの名称 ※移動無しの場合はnullptr
+	double* param;		// トラックバーの設定値の配列へのポインタ ※設定値が無い場合はnullptr
+	int param_num;		// トラックバーの設定値の数
+	bool accelerate;	// トラックバーの加速度が有効か？
+	bool decelerate;	// トラックバーの減速度が有効か？
+	bool twopoint;		// トラックバーの中間点無視が有効か？
+	bool timecontrol;	// トラックバーの時間制御が有効か？
 };
 
 //----------------------------------------------------------------------------------
@@ -358,6 +370,42 @@ struct EDIT_SECTION {
 	// 選択中オブジェクトの区間の位置を取得します
 	// 戻り値	: 区間の番号 (未選択の場合は-1を返却)
 	int (*get_focus_object_section)();
+
+	// オブジェクトの区間の開始フレーム番号を取得します
+	// object	: オブジェクトのハンドル
+	// section	: 区間の番号
+	// 戻り値	: 区間の開始フレーム番号 (取得出来ない場合は-1を返却)
+	int (*get_object_section_frame)(OBJECT_HANDLE object, int section);
+
+	// 指定フレーム位置でのオブジェクトのトラックバー項目の値を取得します
+	// object	: オブジェクトのハンドル
+	// effect	: 対象のエフェクト名 (エイリアスファイルのeffect.nameの値)
+	//			  同じエフェクトが複数ある場合は":n"のサフィックスでインデックス指定出来ます (nは0からの番号)
+	// item		: 対象のトラックバー項目の名称 (エイリアスファイルのキーの名称)
+	// frame	: 取得対象のフレーム番号 ※少数部でフレーム間の位置を指定出来ます
+	// value	: トラックバー項目の値の格納先へのポインタ
+	// 戻り値	: 設定出来た場合はtrue (対象が見つからない場合は失敗します)
+	bool (*get_object_track_value)(OBJECT_HANDLE object, LPCWSTR effect, LPCWSTR item, double frame, double* value);
+
+	// 指定フレーム位置でのオブジェクトのチェックボックス(セクション毎含む)項目の値を取得します
+	// object	: オブジェクトのハンドル
+	// effect	: 対象のエフェクト名 (エイリアスファイルのeffect.nameの値)
+	//			  同じエフェクトが複数ある場合は":n"のサフィックスでインデックス指定出来ます (nは0からの番号)
+	// item		: 対象のチェックボックス項目の名称 (エイリアスファイルのキーの名称)
+	// frame	: 取得対象のフレーム番号 ※セクション毎チェックボックスの場合に利用
+	// value	: チェックボックス項目の値の格納先へのポインタ
+	// 戻り値	: 設定出来た場合はtrue (対象が見つからない場合は失敗します)
+	bool (*get_object_check_value)(OBJECT_HANDLE object, LPCWSTR effect, LPCWSTR item, int frame, bool* value);
+
+	// オブジェクトのトラックバー項目の情報を取得します
+	// object		: オブジェクトのハンドル
+	// effect		: 対象のエフェクト名 (エイリアスファイルのeffect.nameの値)
+	//				  同じエフェクトが複数ある場合は":n"のサフィックスでインデックス指定出来ます (nは0からの番号)
+	// item			: 対象のトラックバー項目の名称 (エイリアスファイルのキーの名称)
+	// info			: トラックバー情報の格納先へのポインタ
+	// info_size	: トラックバー情報の格納先のサイズ ※TRACK_INFOと異なる場合はサイズ分のみ取得されます
+	// 戻り値		: 取得出来た場合はtrue (対象が見つからない場合は失敗します)
+	bool (*get_object_track_info)(OBJECT_HANDLE object, LPCWSTR effect, LPCWSTR item, TRACK_INFO* info, int info_size);
 
 };
 
@@ -675,5 +723,10 @@ struct HOST_APP_TABLE {
 	// script_module_table	: スクリプトモジュール構造体
 	// module_name			: モジュール名
 	void (*register_script_module_name)(SCRIPT_MODULE_TABLE* script_module_table, LPCWSTR module_name);
+
+	// フォントコレクションを登録する
+	// collection	: フォントコレクション (IDWriteFontCollectionのポインタ)
+	//				  ※DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED)から作成したものが利用出来ると思います
+	void (*register_font_collection)(IDWriteFontCollection* collection);
 
 };

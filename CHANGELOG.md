@@ -1,5 +1,10 @@
 # 変更履歴
 
+## 2026/6/7
+
+- \[aux2] EDIT_SECTIONにオブジェクトの設定項目の情報取得関数を追加
+- \[aux2] HOST_APP_TABLEにregister_font_collection()を追加
+
 ## 2026/5/30
 
 - \[aux2] 汎用プラグインのUninitializePluginのタイミングを調整

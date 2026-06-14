@@ -95,6 +95,21 @@ struct TRACK_INFO {
 	bool timecontrol;	// トラックバーの時間制御が有効か？
 };
 
+// パレット情報構造体
+struct PALETTE_INFO {
+	static constexpr int PALETTE_NUM = 64;
+	struct {
+		unsigned char r, g, b, a;	// パレット色 ※aは常に255
+	} color[PALETTE_NUM];
+};
+
+// イベント種別
+enum class EVENT_TYPE : int {
+	UPDATE_OBJECT = 1,		// オブジェクト情報の更新
+	CHANGE_EDIT_FRAME = 2,	// 現在の編集フレームの移動
+	CHANGE_EDIT_SCENE = 3,	// 現在の編集シーンの変更 ※シーン情報の更新も含まれる
+};
+
 //----------------------------------------------------------------------------------
 
 // 編集情報構造体
@@ -407,6 +422,18 @@ struct EDIT_SECTION {
 	// 戻り値		: 取得出来た場合はtrue (対象が見つからない場合は失敗します)
 	bool (*get_object_track_info)(OBJECT_HANDLE object, LPCWSTR effect, LPCWSTR item, TRACK_INFO* info, int info_size);
 
+	// 現在のパレット名を取得します
+	// ラベル付きの場合は[ラベル名.パレット名]のフォーマットになります
+	// 戻り値		: 現在のパレット名 ※コールバック処理の終了まで有効
+	LPCWSTR (*get_palette_name)();
+
+	// 指定のパレットの情報を取得します
+	// name			: パレット名
+	// info			: パレット情報の格納先へのポインタ
+	// info_size	: パレット情報の格納先のサイズ ※PALETTE_INFOと異なる場合はサイズ分のみ取得されます
+	// 戻り値		: 取得出来た場合はtrue (対象が見つからない場合は失敗します)
+	bool (*get_palette_info)(LPCWSTR name, PALETTE_INFO* info, int info_size);
+
 };
 
 // 編集ハンドル構造体
@@ -528,6 +555,17 @@ struct EDIT_HANDLE {
 	// レンダリング中のタスクが全て完了するまで待機します
 	// ※参照ロック、編集ロック状態で呼び出すとデットロックする可能性があります
 	void (*wait_rendering_task)();
+
+	// フォント名の一覧をコールバック関数(func_proc_enum_font)で取得します
+	// param				: 任意のユーザーデータのポインタ
+	// func_proc_enum_font	: フォント名の取得処理のコールバック関数
+	void (*enum_font_name)(void* param, void (*func_proc_enum_font)(void* param, LPCWSTR name));
+
+	// パレット名の一覧をコールバック関数(func_proc_enum_palette)で取得します
+	// パレット情報を排他制御する為に参照ロックします。※同一スレッドで既にロック状態の場合はそのまま取得します。
+	// param					: 任意のユーザーデータのポインタ
+	// func_proc_enum_palette	: パレット名の取得処理のコールバック関数
+	void (*enum_palette_name)(void* param, void (*func_proc_enum_palette)(void* param, LPCWSTR name));
 
 };
 
@@ -728,5 +766,12 @@ struct HOST_APP_TABLE {
 	// collection	: フォントコレクション (IDWriteFontCollectionのポインタ)
 	//				  ※DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED)から作成したものが利用出来ると思います
 	void (*register_font_collection)(IDWriteFontCollection* collection);
+
+	// 指定のイベントのコールバック関数を登録する
+	// コールバック関数はイベント用スレッドから呼ばれます
+	// イベント処理からcall_edit_section()は利用出来ません
+	// event			: イベント種別
+	// func_proc_event	: イベント処理のコールバック関数
+	void (*register_event_listener)(EVENT_TYPE type, void* param, void (*func_proc_event)(void* param));
 
 };

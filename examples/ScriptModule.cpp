@@ -5,7 +5,17 @@
 #include <algorithm>
 
 #include "module2.h"
+#include "logger2.h"
 #include "filter2.h" // PIXEL_RGBA定義用 
+
+LOG_HANDLE* logger;
+
+//---------------------------------------------------------------------
+//	ログ出力機能初期化関数 (未定義なら呼ばれません)
+//---------------------------------------------------------------------
+EXTERN_C __declspec(dllexport) void InitializeLogger(LOG_HANDLE* handle) {
+	logger = handle;
+}
 
 //---------------------------------------------------------------------
 //	プラグインDLL初期化関数 (未定義なら呼ばれません)
@@ -31,7 +41,6 @@ void sum(SCRIPT_MODULE_PARAM* param) {
 		total += param->get_param_double(i);
 	}
 	param->push_result_double(total);
-
 }
 
 //---------------------------------------------------------------------
@@ -65,11 +74,45 @@ void luminance(SCRIPT_MODULE_PARAM* param) {
 }
 
 //---------------------------------------------------------------------
+//	メタテーブルを返却するサンプル関数
+//---------------------------------------------------------------------
+void meta_table_func(SCRIPT_MODULE_PARAM* param) {
+	logger->log(logger, L"call func");
+}
+
+void meta_table_getter(SCRIPT_MODULE_PARAM* param) {
+	if (param->get_param_num() != 2) return;
+	auto key = param->get_param_string(1); // キー名がindex=1に入る
+	if (strcmp(key, "func") == 0) {
+		param->push_result_function(meta_table_func, nullptr); // "func"の場合は関数を返却
+	} else {
+		param->push_result_int((int)strlen(key)); // キー名の長さを返却
+	}
+}
+
+void meta_table_setter(SCRIPT_MODULE_PARAM* param) {
+	if (param->get_param_num() != 3) return;
+	auto key = param->get_param_string(1); // キー名がindex=1に入る
+	auto value = param->get_param_string(2); // 値がindex=2に入る
+	WCHAR buf[256];
+	MultiByteToWideChar(CP_UTF8, 0, key, -1, buf, 256);
+	logger->log(logger, buf);
+	MultiByteToWideChar(CP_UTF8, 0, value, -1, buf, 256);
+	logger->log(logger, buf);
+}
+
+void meta_table(SCRIPT_MODULE_PARAM* param) {
+	// メタテーブルを返却
+	param->push_result_meta_table(meta_table_getter, meta_table_setter, nullptr);
+}
+
+//---------------------------------------------------------------------
 //	スクリプトモジュール関数リスト定義
 //---------------------------------------------------------------------
 SCRIPT_MODULE_FUNCTION functions[] = {
 	{ L"sum", sum },
 	{ L"luminance", luminance },
+	{ L"new", meta_table },
 	{ nullptr }
 };
 

@@ -1,5 +1,14 @@
 # 変更履歴
 
+## 2026/6/14
+
+- \[auf2] FILTER_ITEM_CHECK_SECTIONの引数を追加
+- \[auf2] OBJECT_INFOにframe_s,frame_eを追加
+- \[aux2] EDIT_HANDLEにenum_font_name(),enum_palette_name()を追加
+- \[aux2] EDIT_SECTIONにget_palette_name(),get_palette_info()を追加
+- \[aux2] HOST_APP_TABLEにregister_event_listener()を追加
+- \[mod2] push_result_function(),push_result_meta_table()を追加
+
 ## 2026/6/7
 
 - \[aux2] EDIT_SECTIONにオブジェクトの設定項目の情報取得関数を追加

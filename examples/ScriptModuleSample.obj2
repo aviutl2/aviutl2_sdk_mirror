@@ -17,3 +17,7 @@ obj.load("text",value)
 local data,w,h = obj.getpixeldata("object")
 func.luminance(data,w,h,bright)
 obj.putpixeldata("object",data,w,h)
+
+-- メタテーブルの関数呼び出し
+local t = func.new()
+t.func()

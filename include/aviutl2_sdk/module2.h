@@ -53,7 +53,7 @@ struct SCRIPT_MODULE_PARAM {
 	// 戻り値		: 引数の値 (取得出来ない場合はnullptr)
 	LPCSTR (*get_param_string)(int index);
 
-	// 引数をデータのポインタで取得する
+	// 引数をデータのポインタで取得する ※LightUserData等から取得
 	// index		: 引数の位置(0〜)
 	// 戻り値		: 引数の値 (取得出来ない場合はnullptr)
 	void* (*get_param_data)(int index);
@@ -117,7 +117,7 @@ struct SCRIPT_MODULE_PARAM {
 	// value		: 戻り値
 	void (*push_result_string)(LPCSTR value);
 
-	// データのポインタの戻り値を追加する
+	// データのポインタの戻り値を追加する ※LightUserDataを返却
 	// value		: 戻り値
 	void (*push_result_data)(void* value);
 
@@ -199,6 +199,24 @@ struct SCRIPT_MODULE_PARAM {
 	// スクリプト処理中は参照系の関数が利用出来ます
 	EDIT_SECTION* edit;
 
+	//--------------------------------
+
+	// 関数を戻り値として追加する
+	// func			: 返却した関数の実行時に呼ばれるコールバック関数
+	// userdata		: 任意のユーザーデータのポインタ
+	void (*push_result_function)(void (*func)(SCRIPT_MODULE_PARAM*), void* userdata);
+
+	// メタテーブルの戻り値を追加する
+	// コールバック関数内の引数はfunc_getterが__index,func_setterが__newindexのメタメソッドと同様になります
+	// func_getter	: メタテーブルの値の取得時に呼ばれるコールバック関数
+	// func_setter	: メタテーブルの値の設定時に呼ばれるコールバック関数
+	// userdata		: 任意のユーザーデータのポインタ
+	void (*push_result_meta_table)(void (*func_getter)(SCRIPT_MODULE_PARAM*), void (*func_setter)(SCRIPT_MODULE_PARAM*), void* userdata);
+
+	// 任意のユーザーデータのポインタ
+	// push_result_function(),push_result_meta_table()の引数の値が格納されます
+	void* userdata;
+
 };
 
 //----------------------------------------------------------------------------------
@@ -214,4 +232,3 @@ struct SCRIPT_MODULE_TABLE {
 	LPCWSTR information;				// スクリプトモジュールの情報
 	SCRIPT_MODULE_FUNCTION* functions;	// 登録する関数の一覧 (SCRIPT_MODULE_FUNCTIONを列挙して関数名がnullの要素で終端したリストへのポインタ)
 };
-

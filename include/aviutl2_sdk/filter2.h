@@ -73,10 +73,11 @@ struct FILTER_ITEM_CHECK {
 // チェックボックス(セクション毎)項目構造体
 // 例：FILTER_ITEM_CHECK_SECTION check = { L"チェック", false };
 struct FILTER_ITEM_CHECK_SECTION {
-	FILTER_ITEM_CHECK_SECTION(LPCWSTR name, bool value) : name(name), value(value) {}
-	LPCWSTR type = L"checksection";	// 設定の種別
-	LPCWSTR name;					// 設定名
-	bool value;						// 設定値 (フィルタ処理の呼び出し時に現在の値に更新されます)
+	FILTER_ITEM_CHECK_SECTION(LPCWSTR name, bool value, bool multi_section = true) : name(name), value(value), multi_section(multi_section) {}
+	LPCWSTR type = L"checksection2";	// 設定の種別 ※以前の"checksection"種別も互換対応されます
+	LPCWSTR name;						// 設定名
+	bool value;							// 設定値 (フィルタ処理の呼び出し時に現在の値に更新されます)
+	const bool multi_section;			// セクション毎設定の初期値
 };
 
 // 色選択項目構造体
@@ -332,6 +333,8 @@ struct OBJECT_INFO {
 	int layer;				// オブジェクトの現在のレイヤー番号 ※描画対象のオブジェクトのレイヤー番号
 	int	index;				// 複数オブジェクト時の現在の対象番号 ※個別オブジェクト用
 	int	num;				// 複数オブジェクト時の対象数 (1 = 単体オブジェクト / 0 = 不定) ※個別オブジェクト用
+	int frame_s;			// 全体(シーン)基準のオブジェクトの開始フレーム(0からの番号)
+	int frame_e;			// 全体(シーン)基準のオブジェクトの終了フレーム(0からの番号)
 
 	inline bool is_filter_object() const { return flag & FLAG_FILTER_OBJECT; }
 };

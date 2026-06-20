@@ -359,6 +359,7 @@ struct OBJECT_AUDIO_PARAM {
 struct ID3D11Texture2D;
 struct ID3D11BlendState;
 struct ID3D11SamplerState;
+struct IDWriteFont;
 
 // 画像フィルタ処理用構造体
 struct FILTER_PROC_VIDEO {
@@ -722,6 +723,11 @@ struct FILTER_PROC_VIDEO {
 	// format		: 画像データのピクセルフォーマット
 	// 戻り値		: 失敗した場合はfalse (画像リソース名が不正な場合等)
 	bool (*set_image_resource_data)(LPCWSTR resource, const void* buffer, int width, int height, int pitch, INPUT_PIXEL_FORMAT format);
+
+	// 登録されているフォントのDirectWriteのフォントのポインタを取得する (IDWriteFontのポインタを取得します) 
+	// font		: フォント名 ※アプリケーション内の登録名
+	// 戻り値	: IDWriteFontのポインタ (指定フォントが無い場合はnullptrを返却)
+	IDWriteFont* (*get_font)(LPCWSTR font);
 
 };
 

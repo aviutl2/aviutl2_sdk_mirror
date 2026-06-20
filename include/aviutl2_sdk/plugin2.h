@@ -93,6 +93,8 @@ struct TRACK_INFO {
 	bool decelerate;	// トラックバーの減速度が有効か？
 	bool twopoint;		// トラックバーの中間点無視が有効か？
 	bool timecontrol;	// トラックバーの時間制御が有効か？
+	int group_num;		// 所属グループのトラックバーの数 ※グループ化されていない場合は1
+	int group_index;	// 所属グループ内のインデックス
 };
 
 // パレット情報構造体

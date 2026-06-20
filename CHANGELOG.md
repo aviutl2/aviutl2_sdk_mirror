@@ -1,5 +1,11 @@
 # 変更履歴
 
+## 2026/6/20
+
+- \[auf2] FILTER_PROC_VIDEOにget_font()を追加
+- \[aux2] TRACK_INFOにgroup_num,group_indexを追加
+- \[aui2]\[auo2] 汎用プラグインから登録した場合にfunc_config()のdll_hinstが設定されないのを修正
+
 ## 2026/6/14
 
 - \[auf2] FILTER_ITEM_CHECK_SECTIONの引数を追加

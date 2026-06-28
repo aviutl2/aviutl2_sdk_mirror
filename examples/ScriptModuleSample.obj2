@@ -18,6 +18,8 @@ local data,w,h = obj.getpixeldata("object")
 func.luminance(data,w,h,bright)
 obj.putpixeldata("object",data,w,h)
 
--- メタテーブルの関数呼び出し
-local t = func.new()
-t.func()
+-- メタテーブルの演算
+local a = func.new(1,2,3)
+local b = func.new(4,5,6)
+local c = a + b
+c.func()

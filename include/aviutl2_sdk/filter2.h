@@ -399,6 +399,7 @@ struct FILTER_PROC_VIDEO {
 
 	// 指定オブジェクトの画像出力項目のパラメータを取得する
 	// object		: 対象のオブジェクトのハンドル (nullptrを指定すると現在のオブジェクトが対象)
+	//				  ※フィルタ処理対象のシーンにあるオブジェクトのみ取得出来ます
 	// offset		: 取得時間のオフセット(秒) (0なら現時間)
 	// output		: パラメータの格納先へのポインタ
 	// output_size	: パラメータの格納先のサイズ ※サイズ分のみ取得されます
@@ -724,10 +725,8 @@ struct FILTER_PROC_VIDEO {
 	// 戻り値		: 失敗した場合はfalse (画像リソース名が不正な場合等)
 	bool (*set_image_resource_data)(LPCWSTR resource, const void* buffer, int width, int height, int pitch, INPUT_PIXEL_FORMAT format);
 
-	// 登録されているフォントのDirectWriteのフォントのポインタを取得する (IDWriteFontのポインタを取得します) 
-	// font		: フォント名 ※アプリケーション内の登録名
-	// 戻り値	: IDWriteFontのポインタ (指定フォントが無い場合はnullptrを返却)
-	IDWriteFont* (*get_font)(LPCWSTR font);
+	// 冗長なので廃止します ※EDIT_SECTIONに移動しました
+	IDWriteFont* (*deprecated_get_font)(LPCWSTR font);
 
 };
 
@@ -762,6 +761,7 @@ struct FILTER_PROC_AUDIO {
 
 	// 指定オブジェクトの音声出力項目のパラメータを取得する
 	// object		: 対象のオブジェクトのハンドル (nullptrを指定すると現在のオブジェクトが対象)
+	//				  ※フィルタ処理対象のシーンにあるオブジェクトのみ取得出来ます
 	// offset		: 取得時間のオフセット(秒) (0なら現時間)
 	// param		: パラメータの格納先へのポインタ
 	// param_size	: パラメータの格納先のサイズ ※サイズ分のみ取得されます

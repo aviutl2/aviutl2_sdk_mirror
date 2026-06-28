@@ -40,6 +40,7 @@ struct EDIT_HANDLE;
 struct PROJECT_FILE;
 struct PIXEL_RGBA;
 struct IDWriteFontCollection;
+struct IDWriteFont;
 
 // 汎用プラグイン構造体
 struct COMMON_PLUGIN_TABLE {
@@ -95,6 +96,7 @@ struct TRACK_INFO {
 	bool timecontrol;	// トラックバーの時間制御が有効か？
 	int group_num;		// 所属グループのトラックバーの数 ※グループ化されていない場合は1
 	int group_index;	// 所属グループ内のインデックス
+	LPCWSTR group_name;	// 所属グループの名称 ※グループ化されていない場合はnullptr
 };
 
 // パレット情報構造体
@@ -156,6 +158,7 @@ struct EDIT_SECTION {
 	OBJECT_HANDLE (*create_object_from_alias)(LPCSTR alias, int layer, int frame, int length);
 
 	// 指定のフレーム番号以降にあるオブジェクトを検索します
+	// ※フィルタプラグインから呼び出した場合は処理対象のシーンのオブジェクトを検索します
 	// layer	: 検索対象のレイヤー番号
 	// frame	: 検索を開始するフレーム番号
 	// 戻り値	: 検索したオブジェクトのハンドル (見つからない場合はnullptrを返却)
@@ -395,6 +398,7 @@ struct EDIT_SECTION {
 	int (*get_object_section_frame)(OBJECT_HANDLE object, int section);
 
 	// 指定フレーム位置でのオブジェクトのトラックバー項目の値を取得します
+	// ※フィルタプラグインから呼び出した場合は処理対象のシーンのオブジェクトのみ取得出来ます
 	// object	: オブジェクトのハンドル
 	// effect	: 対象のエフェクト名 (エイリアスファイルのeffect.nameの値)
 	//			  同じエフェクトが複数ある場合は":n"のサフィックスでインデックス指定出来ます (nは0からの番号)
@@ -435,6 +439,22 @@ struct EDIT_SECTION {
 	// info_size	: パレット情報の格納先のサイズ ※PALETTE_INFOと異なる場合はサイズ分のみ取得されます
 	// 戻り値		: 取得出来た場合はtrue (対象が見つからない場合は失敗します)
 	bool (*get_palette_info)(LPCWSTR name, PALETTE_INFO* info, int info_size);
+
+	// 登録されているフォントのDirectWriteのフォントのポインタを取得する (IDWriteFontのポインタを取得します) 
+	// font		: フォント名 ※アプリケーション内の登録名
+	// 戻り値	: IDWriteFontのポインタ (指定フォントが無い場合はnullptrを返却)
+	IDWriteFont* (*get_font)(LPCWSTR font);
+
+	// オブジェクトのトラックバーグループの所属アイテム名を取得します
+	// object		: オブジェクトのハンドル
+	// effect		: 対象のエフェクト名 (エイリアスファイルのeffect.nameの値)
+	//				  同じエフェクトが複数ある場合は":n"のサフィックスでインデックス指定出来ます (nは0からの番号)
+	// group_name	: 対象のトラックバーグループ項目の名称 (エイリアスファイルのキーの名称)
+	// item_names	: 所属アイテム名の格納先へのポインタ
+	// item_num		: 所属アイテム名の格納先の数
+	// 戻り値		: 取得出来た所属アイテム名の数 (指定グループが無い場合は0を返却)
+	//				  item_namesがnullptrの場合は所属アイテム数を返却します
+	int (*get_object_track_group_names)(OBJECT_HANDLE object, LPCWSTR effect, LPCWSTR group_name, LPCWSTR* item_names, int item_num);
 
 };
 

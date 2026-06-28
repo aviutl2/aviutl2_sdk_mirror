@@ -31,6 +31,7 @@
 
 // plugin2.hに定義されています
 struct EDIT_SECTION;
+struct META_METHOD_FUNCTION;
 
 // スクリプトモジュール引数構造体
 struct SCRIPT_MODULE_PARAM {
@@ -206,17 +207,31 @@ struct SCRIPT_MODULE_PARAM {
 	// userdata		: 任意のユーザーデータのポインタ
 	void (*push_result_function)(void (*func)(SCRIPT_MODULE_PARAM*), void* userdata);
 
-	// メタテーブルの戻り値を追加する
-	// コールバック関数内の引数はfunc_getterが__index,func_setterが__newindexのメタメソッドと同様になります
-	// func_getter	: メタテーブルの値の取得時に呼ばれるコールバック関数
-	// func_setter	: メタテーブルの値の設定時に呼ばれるコールバック関数
-	// userdata		: 任意のユーザーデータのポインタ
-	void (*push_result_meta_table)(void (*func_getter)(SCRIPT_MODULE_PARAM*), void (*func_setter)(SCRIPT_MODULE_PARAM*), void* userdata);
+	// 新しい関数に差し替えるので廃止します
+	void (*deprecated_push_result_meta_table)(void (*func_getter)(SCRIPT_MODULE_PARAM*), void (*func_setter)(SCRIPT_MODULE_PARAM*), void* userdata);
 
 	// 任意のユーザーデータのポインタ
 	// push_result_function(),push_result_meta_table()の引数の値が格納されます
 	void* userdata;
 
+	// メタテーブルの戻り値を追加する
+	// 任意のメタメソッドのコールバック関数を設定したメタテーブルを返却します
+	// meta_method_functions	: 登録するメタメソッドの一覧 (META_METHOD_FUNCTIONを列挙してメタメソッド名がnullの要素で終端したリストへのポインタ)
+	// userdata					: 任意のユーザーデータのポインタ
+	void (*push_result_meta_table)(META_METHOD_FUNCTION* meta_method_functions, void* userdata);
+
+	// 引数のメタテーブルのuserdataのポインタを取得する
+	// index					: 引数の位置(0〜)
+	// meta_method_functions	: 対象のメタテーブルを識別する為のメタメソッドの一覧 ※同一アドレスの場合のみ取得出来ます
+	// 戻り値					: userdataのポインタ (取得出来ない場合はnullptr)
+	void* (*get_param_meta_table)(int index, META_METHOD_FUNCTION* meta_method_functions);
+
+};
+
+// メタメソッド定義構造体
+struct META_METHOD_FUNCTION {
+	LPCSTR method;						// メタメソッド名 ※luaのメタメソッドを指定出来ます
+	void (*func)(SCRIPT_MODULE_PARAM*);	// コールバック関数
 };
 
 //----------------------------------------------------------------------------------

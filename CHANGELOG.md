@@ -1,5 +1,13 @@
 # 変更履歴
 
+## 2026/6/28
+
+- \[auf2]\[aux2] get_font()をFILTER_PROC_VIDEOからEDIT_SECTIONに移動
+- \[auf2] シーンの参照時にget_output_image_param(),get_output_audio_param()が正しく取得出来ないのを修正
+- \[aux2] フィルタプラグインからfind_object(),get_object_track_value()を利用した時の参照先シーンを修正
+- \[aux2] EDIT_SECTIONにget_object_track_group_namesを追加
+- \[mod2] push_result_meta_table()の引数を変更,get_param_meta_table()を追加
+
 ## 2026/6/20
 
 - \[auf2] FILTER_PROC_VIDEOにget_font()を追加

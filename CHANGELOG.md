@@ -1,5 +1,12 @@
 # 変更履歴
 
+## 2026/7/4
+
+- \[aux2] EDIT_SECTIONの文字列返却の仕組みを調整
+- \[aux2] EDIT_SECTIONにget_grid_bpm_list(),set_grid_bpm_list()を追加
+- \[aux2] EDIT_SECTIONにEFFECT_HANDLE関連の関数を追加
+- \[mod2] get_param_type()を追加
+
 ## 2026/6/28
 
 - \[auf2]\[aux2] get_font()をFILTER_PROC_VIDEOからEDIT_SECTIONに移動

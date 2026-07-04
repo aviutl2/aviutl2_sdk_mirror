@@ -33,6 +33,20 @@
 struct EDIT_SECTION;
 struct META_METHOD_FUNCTION;
 
+// 引数の型種別
+enum class PARAM_TYPE : int {
+	NONE			= -1,
+	NIL				= 0,
+	BOOLEAN			= 1,
+	LIGHTUSERDATA	= 2,
+	NUMBER			= 3,
+	STRING			= 4,
+	TABLE			= 5,
+	FUNCTION		= 6,
+	USERDATA		= 7,
+	THREAD			= 8,
+};
+
 // スクリプトモジュール引数構造体
 struct SCRIPT_MODULE_PARAM {
 	// 引数の数を取得する
@@ -226,6 +240,11 @@ struct SCRIPT_MODULE_PARAM {
 	// 戻り値					: userdataのポインタ (取得出来ない場合はnullptr)
 	void* (*get_param_meta_table)(int index, META_METHOD_FUNCTION* meta_method_functions);
 
+	// 引数の型を取得します
+	// index					: 引数の位置(0〜)
+	// 戻り値					: 引数の型
+	PARAM_TYPE (*get_param_type)(int index);
+	
 };
 
 // メタメソッド定義構造体

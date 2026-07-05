@@ -113,7 +113,8 @@ struct PALETTE_INFO {
 struct BPM_INFO {
 	float tempo;	// テンポ
 	int	beat;		// 拍子
-	double offset;	// 基準時間
+	double start;	// 開始位置(秒)
+	float offset;	// 拍子オフセット(秒)
 };
 
 // イベント種別
@@ -143,7 +144,7 @@ struct EDIT_INFO {
 	int select_range_end;		// フレーム範囲選択の終了フレーム番号 ※未選択の場合は-1
 	float grid_bpm_tempo;		// グリッド(BPM)のテンポ ※先頭のBPM情報
 	int grid_bpm_beat;			// グリッド(BPM)の拍子 ※先頭のBPM情報
-	float grid_bpm_offset;		// グリッド(BPM)の基準時間 ※先頭のBPM情報
+	float grid_bpm_offset;		// グリッド(BPM)の拍子オフセット ※先頭のBPM情報
 	int scene_id;		// シーンのID
 };
 
@@ -465,17 +466,11 @@ struct EDIT_SECTION {
 	//				  item_namesがnullptrの場合は所属アイテム数を返却します
 	int (*get_object_track_group_names)(OBJECT_HANDLE object, LPCWSTR effect, LPCWSTR group_name, LPCWSTR* item_names, int item_num);
 
-	// グリッド(BPM)のBPM情報一覧を取得します
-	// bpm_list		: BPM情報リストの格納先へのポインタ
-	// bpm_num		: BPM情報リストの格納先の数
-	// 戻り値		: 取得出来たBPM情報の数
-	//				  bpm_listがnullptrの場合はグリッド(BPM)に設定されているBPM情報の数を返却します
-	int (*get_grid_bpm_list)(BPM_INFO* bpm_list, int bpm_num);
+	// 新しい関数に差し替えるので廃止します
+	int (*deprecated_get_grid_bpm_list)(BPM_INFO* bpm_list, int bpm_num);
 
-	// グリッド(BPM)のBPM情報一覧を設定します (call_read_section利用不可)
-	// bpm_list		: 設定するBPM情報リストへのポインタ
-	// bpm_num		: 設定するBPM情報リストの要素数
-	void (*set_grid_bpm_list)(BPM_INFO* bpm_list, int bpm_num);
+	// 新しい関数に差し替えるので廃止します
+	void (*deprecated_set_grid_bpm_list)(BPM_INFO* bpm_list, int bpm_num);
 
 	// オブジェクトからエフェクトを検索します
 	// object	: 検索対象のオブジェクトのハンドル
@@ -563,6 +558,20 @@ struct EDIT_SECTION {
 	// info_size	: トラックバー情報の格納先のサイズ ※TRACK_INFOと異なる場合はサイズ分のみ取得されます
 	// 戻り値		: 取得出来た場合はtrue (対象が見つからない場合は失敗します)
 	bool (*get_effect_track_info)(EFFECT_HANDLE effect, LPCWSTR item, TRACK_INFO* info, int info_size);
+
+	// グリッド(BPM)のBPM情報一覧を取得します
+	// bpm_list		: BPM情報リストの格納先へのポインタ
+	// bpm_num		: BPM情報リストの格納先の数
+	// bpm_size		: BPM情報構造体のサイズ ※BPM_INFOと異なる場合はサイズ分のみ取得されます
+	// 戻り値		: 取得出来たBPM情報の数
+	//				  bpm_listがnullptrの場合はグリッド(BPM)に設定されているBPM情報の数を返却します
+	int (*get_grid_bpm_list)(BPM_INFO* bpm_list, int bpm_num, int bpm_size);
+
+	// グリッド(BPM)のBPM情報一覧を設定します (call_read_section利用不可)
+	// bpm_list		: 設定するBPM情報リストへのポインタ
+	// bpm_num		: 設定するBPM情報リストの要素数
+	// bpm_size		: BPM情報構造体のサイズ ※BPM_INFOと異なる場合はサイズ分のみ設定されます
+	void (*set_grid_bpm_list)(BPM_INFO* bpm_list, int bpm_num, int bpm_size);
 
 };
 

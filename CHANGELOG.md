@@ -1,5 +1,9 @@
 # 変更履歴
 
+## 2026/7/5
+
+- \[aux2] get_grid_bpm_list(),set_grid_bpm_list()の引数を変更
+
 ## 2026/7/4
 
 - \[aux2] EDIT_SECTIONの文字列返却の仕組みを調整

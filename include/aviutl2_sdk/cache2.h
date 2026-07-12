@@ -229,7 +229,8 @@ struct CACHE_HANDLE {
 	// キャッシュを作成して今回の画像データを設定
 	{
 		auto image = cache_handle->create_image_cache(cache_handle, cache_name.c_str(), width, height);
-		memcpy(image.buffer, buffer.get(), width * height * sizeof(PIXEL_RGBA));
+		if (image)
+			memcpy(image.buffer, buffer.get(), (size_t)image.width * image.height * sizeof(PIXEL_RGBA));
 	}
 	return true;
 */

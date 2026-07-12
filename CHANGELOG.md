@@ -1,5 +1,12 @@
 # 変更履歴
 
+## 2026/7/12
+
+- \[aux2] フィルタプラグインからget_layer_enable(),get_layer_lock(),get_layer_name()を利用した時の参照先シーンを修正
+- \[aux2] set_object_item_value(),set_effect_item_value()でレイヤー範囲を変更した時にUndo出来ないのを修正
+- \[aux2] register_event_listener()のイベント種別にCHANGE_FOCUS_OBJECTを追加
+- ファイルパス変数の説明を追加
+
 ## 2026/7/5
 
 - \[aux2] get_grid_bpm_list(),set_grid_bpm_list()の引数を変更

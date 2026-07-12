@@ -119,9 +119,10 @@ struct BPM_INFO {
 
 // イベント種別
 enum class EVENT_TYPE : int {
-	UPDATE_OBJECT = 1,		// オブジェクト情報の更新
-	CHANGE_EDIT_FRAME = 2,	// 現在の編集フレームの移動
-	CHANGE_EDIT_SCENE = 3,	// 現在の編集シーンの変更 ※シーン情報の更新も含まれる
+	UPDATE_OBJECT = 1,			// オブジェクト情報の更新
+	CHANGE_EDIT_FRAME = 2,		// 現在の編集フレームの移動
+	CHANGE_EDIT_SCENE = 3,		// 現在の編集シーンの変更 ※シーン情報の更新も含まれる
+	CHANGE_FOCUS_OBJECT = 4,	// 選択されているオブジェクトの変更
 };
 
 //----------------------------------------------------------------------------------

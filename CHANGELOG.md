@@ -1,5 +1,10 @@
 # 変更履歴
 
+## 2026/7/18
+
+- \[aux2] set_focus_object()で削除されたオブジェクトが選択されないように修正
+- \[aux2] set_focus_object()で選択するオブジェクトを解除出来るようにした
+
 ## 2026/7/12
 
 - \[aux2] フィルタプラグインからget_layer_enable(),get_layer_lock(),get_layer_name()を利用した時の参照先シーンを修正

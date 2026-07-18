@@ -232,7 +232,7 @@ struct EDIT_SECTION {
 
 	// オブジェクト設定ウィンドウで選択するオブジェクトを設定します (call_read_section利用不可)
 	// ※コールバック処理の終了時に設定されます
-	// object	: オブジェクトのハンドル
+	// object	: オブジェクトのハンドル (nullptrを指定すると選択を解除します)
 	void (*set_focus_object)(OBJECT_HANDLE object);
 
 	// プロジェクトファイルのポインタを取得します (call_read_section利用不可)

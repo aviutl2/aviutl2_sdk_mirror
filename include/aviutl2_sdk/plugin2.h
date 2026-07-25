@@ -223,6 +223,7 @@ struct EDIT_SECTION {
 	bool (*move_object)(OBJECT_HANDLE object, int layer, int frame);
 
 	// オブジェクトを削除します (call_read_section利用不可)
+	// ※同一編集セクション内で作成したオブジェクトは削除しないようにすること
 	// object	: オブジェクトのハンドル
 	void (*delete_object)(OBJECT_HANDLE object);
 
@@ -573,6 +574,38 @@ struct EDIT_SECTION {
 	// bpm_num		: 設定するBPM情報リストの要素数
 	// bpm_size		: BPM情報構造体のサイズ ※BPM_INFOと異なる場合はサイズ分のみ設定されます
 	void (*set_grid_bpm_list)(BPM_INFO* bpm_list, int bpm_num, int bpm_size);
+
+	// オブジェクトにエフェクトを追加します (call_read_section利用不可)
+	// object	: エフェクトを追加するオブジェクトのハンドル
+	// effect	: 追加するエフェクト名 (エイリアスファイルのeffect.nameの値)
+	// 戻り値	: 追加したエフェクトのハンドル (追加出来ない場合はnullptrを返却)
+	//			  ※エフェクトハンドルはエフェクトが破棄されるかコールバック処理の終了まで有効
+	EFFECT_HANDLE (*create_effect)(OBJECT_HANDLE object, LPCWSTR effect);
+
+	// オブジェクトからエフェクトを削除します (call_read_section利用不可)
+	// object	: エフェクトを削除するオブジェクトのハンドル
+	// effect	: 削除するエフェクトのハンドル
+	// 戻り値	: 削除出来た場合はtrue
+	bool (*delete_effect)(OBJECT_HANDLE object, EFFECT_HANDLE effect);
+
+	// オブジェクトに中間点(区間)を追加します (call_read_section利用不可)
+	// object	: 中間点を追加するオブジェクトのハンドル
+	// frame	: 中間点を追加するフレーム番号
+	// 戻り値	: 追加出来た場合はtrue
+	bool (*create_object_section)(OBJECT_HANDLE object, int frame);
+
+	// オブジェクトの中間点(区間)を削除します (call_read_section利用不可)
+	// object	: 中間点を削除するオブジェクトのハンドル
+	// section	: 削除する中間点の区間の番号 (開始位置が中間点の区間番号)
+	// 戻り値	: 削除出来た場合はtrue
+	bool (*delete_object_section)(OBJECT_HANDLE object, int section);
+
+	// オブジェクトの中間点(区間)を移動します (call_read_section利用不可)
+	// object	: 中間点を移動するオブジェクトのハンドル
+	// section	: 移動する中間点の区間の番号 (開始位置が中間点の区間番号)
+	// frame	: 移動先のフレーム番号 ※区間を跨ぐ移動は出来ません
+	// 戻り値	: 移動出来た場合はtrue
+	bool (*move_object_section)(OBJECT_HANDLE object, int section, int frame);
 
 };
 

@@ -120,6 +120,7 @@ struct FILTER_ITEM_FILE {
 
 // 汎用データ項目構造体 (設定が表示されない項目になります)
 // フィルタ処理関数内でvalueの参照先データを更新することが出来ます
+// フィルタ処理関数内のset_filter_item_data_size()関数でデータのサイズを変更出来ます
 // 例：struct Data {
 //       int   item1 = 1;
 //       float item2 = 2.0f;
@@ -130,9 +131,18 @@ struct FILTER_ITEM_DATA {
 	FILTER_ITEM_DATA(LPCWSTR name) : name(name), size(sizeof(T)), value(&default_value) {}
 	LPCWSTR type = L"data";		// 設定の種別
 	LPCWSTR name;				// 設定名
-	T* value;					// 設定値 (フィルタ処理の呼び出し時に現在の値のポインタに更新されます)
-	const int size;				// 汎用データのサイズ(1024バイト以下)
+	T* value;					// 汎用データのポインタ (フィルタ処理の呼び出し時に現在の汎用データのポインタに更新されます)
+	int size;					// 汎用データのサイズ (フィルタ処理の呼び出し時に現在の汎用データのサイズに更新されます) ※16KB以下
 	T default_value;			// デフォルト値 (Tの定義でデフォルト値を指定しておく)
+};
+// 型を指定しない場合の定義 ※初期は空のデータ
+template<>
+struct FILTER_ITEM_DATA<void> {
+	FILTER_ITEM_DATA(LPCWSTR name) : name(name) {}
+	LPCWSTR type = L"data";		// 設定の種別
+	LPCWSTR name;				// 設定名
+	void* value = nullptr;		// 汎用データのポインタ (フィルタ処理の呼び出し時に現在の汎用データのポインタに更新されます)
+	int size = 0;				// 汎用データのサイズ (フィルタ処理の呼び出し時に現在の汎用データのサイズに更新されます)
 };
 
 // 設定グループ項目構造体
@@ -728,6 +738,16 @@ struct FILTER_PROC_VIDEO {
 	// 冗長なので廃止します ※EDIT_SECTIONに移動しました
 	IDWriteFont* (*deprecated_get_font)(LPCWSTR font);
 
+	// 指定の汎用データ項目のデータサイズを変更します
+	// サイズを変更すると汎用データのポインタは更新されます
+	// filter_item_data	: 対象のFILTER_ITEM_DATAへのポインタ
+	// size				: 汎用データのサイズ
+	void (*set_filter_item_data_size)(void* filter_item_data, int size);
+
+	// ユーザーデータのポインタ (FLAG_USERDATAが有効の時に設定されます)
+	// func_create()で返却したユーザーデータのポインタ
+	void* userdata;
+
 };
 
 //----------------------------------------------------------------------------------
@@ -774,19 +794,30 @@ struct FILTER_PROC_AUDIO {
 	// 戻り値	: 取得したオブジェクトのハンドル (存在しない場合はnullptrを返却)
 	OBJECT_HANDLE (*get_audio_object)(int layer, double offset);
 
+	// 指定の汎用データ項目のデータサイズを変更します
+	// サイズを変更すると汎用データのポインタは更新されます
+	// filter_item_data	: 対象のFILTER_ITEM_DATAへのポインタ
+	// size				: 汎用データのサイズ (16KB以下)
+	void (*set_filter_item_data_size)(void* filter_item_data, int size);
+
+	// ユーザーデータのポインタ (FLAG_USERDATAが有効の時に設定されます)
+	// func_create()で返却したユーザーデータのポインタ
+	void* userdata;
+
 };
 
 //----------------------------------------------------------------------------------
 
 // フィルタプラグイン構造体
 struct FILTER_PLUGIN_TABLE {
-	int flag;								// フラグ
-	static constexpr int FLAG_VIDEO = 1;	// 画像フィルタをサポートする
-	static constexpr int FLAG_AUDIO = 2;	// 音声フィルタをサポートする
-											// 画像と音声のフィルタ処理は別々のスレッドで処理されます
-	static constexpr int FLAG_INPUT = 4;	// メディアオブジェクトの初期入力をする (メディアオブジェクトにする場合)
-	static constexpr int FLAG_FILTER = 8;	// フィルタオブジェクトをサポートする (フィルタオブジェクトに対応する場合)
-											// フィルタオブジェクトの場合は画像サイズの変更が出来ません
+	int flag;									// フラグ
+	static constexpr int FLAG_VIDEO = 1;		// 画像フィルタをサポートする
+	static constexpr int FLAG_AUDIO = 2;		// 音声フィルタをサポートする
+												// 画像と音声のフィルタ処理は別々のスレッドで処理されます
+	static constexpr int FLAG_INPUT = 4;		// メディアオブジェクトの初期入力をする (メディアオブジェクトにする場合)
+	static constexpr int FLAG_FILTER = 8;		// フィルタオブジェクトをサポートする (フィルタオブジェクトに対応する場合)
+												// フィルタオブジェクトの場合は画像サイズの変更が出来ません
+	static constexpr int FLAG_USERDATA = 16;	// ユーザーデータをサポートする ※func_create(),func_destroy()が呼ばれるようになります
 	LPCWSTR name;				// プラグインの名前
 	LPCWSTR label;				// ラベルの初期値 (nullptrならデフォルトのラベルになります)
 	LPCWSTR information;		// プラグインの情報
@@ -799,5 +830,18 @@ struct FILTER_PLUGIN_TABLE {
 	// 音声フィルタ処理関数へのポインタ (FLAG_AUDIOが有効の時のみ呼ばれます)
 	// 戻り値	: falseを返却すると以降のフィルタや出力処理が中断されます
 	bool (*func_proc_audio)(FILTER_PROC_AUDIO* audio);
+
+	// エフェクトのインスタンスが生成される時に呼ばれる関数へのポインタ (FLAG_USERDATAが有効の時のみ呼ばれます)
+	// ※オブジェクトと関連しない状態でも呼ばれます
+	// effect_id	: エフェクトのID (アプリ起動毎の固有ID)
+	// 戻り値		: 任意のユーザーデータのポインタ
+	void* (*func_create)(int64_t effect_id);
+
+	// エフェクトのインスタンスが破棄される時に呼ばれる関数へのポインタ (FLAG_USERDATAが有効の時のみ呼ばれます)
+	// 編集データやUndoバッファ等の全てのインスタンスが破棄されると呼ばれます
+	// ※オブジェクトと関連しない状態でも呼ばれます
+	// effect_id	: エフェクトのID (アプリ起動毎の固有ID)
+	// userdata		: func_create()で返却したユーザーデータのポインタ
+	void (*func_destroy)(int64_t effect_id ,void* userdata);
 
 };

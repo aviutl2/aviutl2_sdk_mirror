@@ -1,5 +1,13 @@
 # 変更履歴
 
+## 2026/7/25
+
+- \[aux2] 選択オブジェクトをdelete_object()で削除した時に正しく選択解除されるように修正
+- \[aux2] EDIT_SECTIONにcreate_effect(),delete_effect()を追加
+- \[aux2] EDIT_SECTIONにcreate_object_section(),delete_object_section(),move_object_section()を追加
+- \[auf2] set_filter_item_data_size()を追加してFILTER_ITEM_DATAのサイズを変更出来るようにした
+- \[auf2] FLAG_USERDATA等を追加してエフェクトに任意のユーザーデータを関連付けれるようにした
+
 ## 2026/7/18
 
 - \[aux2] set_focus_object()で削除されたオブジェクトが選択されないように修正

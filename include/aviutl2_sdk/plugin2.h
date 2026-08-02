@@ -578,6 +578,7 @@ struct EDIT_SECTION {
 	// オブジェクトにエフェクトを追加します (call_read_section利用不可)
 	// object	: エフェクトを追加するオブジェクトのハンドル
 	// effect	: 追加するエフェクト名 (エイリアスファイルのeffect.nameの値)
+	//			: ※エフェクトが入出力項目(図形や標準描画等)の場合は差し替えになります
 	// 戻り値	: 追加したエフェクトのハンドル (追加出来ない場合はnullptrを返却)
 	//			  ※エフェクトハンドルはエフェクトが破棄されるかコールバック処理の終了まで有効
 	EFFECT_HANDLE (*create_effect)(OBJECT_HANDLE object, LPCWSTR effect);
@@ -606,6 +607,34 @@ struct EDIT_SECTION {
 	// frame	: 移動先のフレーム番号 ※区間を跨ぐ移動は出来ません
 	// 戻り値	: 移動出来た場合はtrue
 	bool (*move_object_section)(OBJECT_HANDLE object, int section, int frame);
+
+	// エフェクトの順序を移動します (call_read_section利用不可)
+	// ※エフェクト種別がフィルタ効果の場合に順序を移動出来ます
+	// object	: エフェクトの順序を移動するオブジェクトのハンドル
+	// effect	: 順序を移動するエフェクトのハンドル
+	// index	: 移動目標の順序のインデックス
+	// 戻り値	: 移動処理後の順序のインデックス (対象が見つからない場合は-1を返却)
+	int (*move_effect)(OBJECT_HANDLE object, EFFECT_HANDLE effect, int index);
+
+	// エフェクトの汎用データ項目の値を取得します
+	// effect	: エフェクトのハンドル
+	// item		: 対象の設定項目の名称 (エイリアスファイルのキーの名称)
+	// data		: 汎用データの格納先へのポインタ
+	// size		: 汎用データの格納先のサイズ ※実際のサイズと異なる場合はサイズ分のみ取得されます
+	// 戻り値	: 取得出来た汎用データのサイズ (取得出来ない場合は0を返却)
+	//			  dataがnullptrの場合は汎用データのサイズを返却します
+	int (*get_effect_data_value)(EFFECT_HANDLE effect, LPCWSTR item, void *data, int size);
+
+	// エフェクトの汎用データ項目の値を設定します (call_read_section利用不可)
+	// effect	: エフェクトのハンドル
+	// item		: 対象の設定項目の名称 (エイリアスファイルのキーの名称)
+	// data		: 設定する汎用データへのポインタ
+	// size		: 設定する汎用データのサイズ
+	// 戻り値	: 設定出来た場合はtrue (対象が見つからない場合は失敗します)
+	bool (*set_effect_data_value)(EFFECT_HANDLE effect, LPCWSTR item, void* data, int size);
+
+	// 編集データを編集済み状態に設定する ※通常は自動的に設定されます
+	void (*set_edited_state)();
 
 };
 
@@ -703,8 +732,8 @@ struct EDIT_HANDLE {
 
 	// 現在のシーンの映像のレンダリングをします
 	// この関数はレンダリングのタスクを追加するのみで完了します
-	// レンダリング完了時はレンダリング用スレッドからコールバック関数が呼ばれます
-	// frame						: レンダリング対象のフレーム
+	// レンダリング完了時はイベント通知スレッドからコールバック関数が呼ばれます
+	// frame						: レンダリング対象のフレーム番号
 	// param						: 任意のユーザーデータのポインタ
 	// func_proc_rendering_video	: レンダリング完了時に呼ばれるコールバック関数
 	//	buffer						: レンダリングした画像データへのポインタ ※PIXEL_RGBA形式
@@ -715,8 +744,8 @@ struct EDIT_HANDLE {
 
 	// 現在のシーンの音声のレンダリングをします
 	// この関数はレンダリングのタスクを追加するのみで完了します
-	// レンダリング完了時はレンダリング用スレッドからコールバック関数が呼ばれます
-	// frame						: レンダリング対象のフレーム
+	// レンダリング完了時はイベント通知スレッドからコールバック関数が呼ばれます
+	// frame						: レンダリング対象のフレーム番号
 	// param						: 任意のユーザーデータのポインタ
 	// func_proc_rendering_audio	: レンダリング完了時に呼ばれるコールバック関数
 	//	buffer0						: レンダリングした音声データ(左チャンネル)へのポインタ ※PCM(float)32bit形式
@@ -740,6 +769,33 @@ struct EDIT_HANDLE {
 	// func_proc_enum_palette	: パレット名の取得処理のコールバック関数
 	void (*enum_palette_name)(void* param, void (*func_proc_enum_palette)(void* param, LPCWSTR name));
 
+	// 指定のオブジェクトの映像のレンダリングをします
+	// この関数はレンダリングのタスクを追加するのみで完了します
+	// レンダリング完了時はイベント通知スレッドからコールバック関数が呼ばれます
+	// object						: レンダリング対象のオブジェクトのハンドル
+	// frame						: レンダリング対象のフレーム番号
+	// apply_effect					: 追加のフィルタ効果を反映するか？ ※グループ制御の追加効果は反映されません
+	// param						: 任意のユーザーデータのポインタ
+	// func_proc_rendering_video	: レンダリング完了時に呼ばれるコールバック関数
+	//	buffer						: レンダリングした画像データへのポインタ ※PIXEL_RGBA形式
+	//	width,height				: レンダリングした画像サイズ
+	//	pitch						: レンダリングした画像データの横1ラインのバイト数
+	// 戻り値						: レンダリング要求が成功した場合はtrue (対象外のオブジェクトや出力中等は失敗します)
+	bool (*rendering_object_video)(OBJECT_HANDLE object, int frame, bool apply_effect, void* param, void (*func_proc_rendering_video)(void* param, int frame, const void* buffer, int width, int height, int pitch));
+
+	// 指定のオブジェクトの音声のレンダリングをします
+	// この関数はレンダリングのタスクを追加するのみで完了します
+	// レンダリング完了時はイベント通知スレッドからコールバック関数が呼ばれます
+	// object						: レンダリング対象のオブジェクトのハンドル
+	// frame						: レンダリング対象のフレーム番号
+	// apply_effect					: 追加のフィルタ効果を反映するか？ ※グループ制御の追加効果は反映されません
+	// param						: 任意のユーザーデータのポインタ
+	// func_proc_rendering_audio	: レンダリング完了時に呼ばれるコールバック関数
+	//	buffer0						: レンダリングした音声データ(左チャンネル)へのポインタ ※PCM(float)32bit形式
+	//	buffer1						: レンダリングした音声データ(右チャンネル)へのポインタ ※PCM(float)32bit形式
+	//	sample_num					: レンダリングした音声のサンプル数
+	// 戻り値						: レンダリング要求が成功した場合はtrue (出力中等は失敗します)
+	bool (*rendering_object_audio)(OBJECT_HANDLE object, int frame, bool apply_effect, void* param, void (*func_proc_rendering_audio)(void* param, int frame, const float* buffer0, const float* buffer1, int sample_num));
 };
 
 //----------------------------------------------------------------------------------
@@ -941,7 +997,7 @@ struct HOST_APP_TABLE {
 	void (*register_font_collection)(IDWriteFontCollection* collection);
 
 	// 指定のイベントのコールバック関数を登録する
-	// コールバック関数はイベント用スレッドから呼ばれます
+	// コールバック関数はイベント通知スレッドから呼ばれます
 	// イベント処理からcall_edit_section()は利用出来ません
 	// event			: イベント種別
 	// func_proc_event	: イベント処理のコールバック関数

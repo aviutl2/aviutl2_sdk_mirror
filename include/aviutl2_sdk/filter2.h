@@ -120,6 +120,7 @@ struct FILTER_ITEM_FILE {
 
 // 汎用データ項目構造体 (設定が表示されない項目になります)
 // フィルタ処理関数内でvalueの参照先データを更新することが出来ます
+// ※Undoポイントの作成や編集済みフラグの設定はされません
 // フィルタ処理関数内のset_filter_item_data_size()関数でデータのサイズを変更出来ます
 // 例：struct Data {
 //       int   item1 = 1;
@@ -345,6 +346,7 @@ struct OBJECT_INFO {
 	int	num;				// 複数オブジェクト時の対象数 (1 = 単体オブジェクト / 0 = 不定) ※個別オブジェクト用
 	int frame_s;			// 全体(シーン)基準のオブジェクトの開始フレーム(0からの番号)
 	int frame_e;			// 全体(シーン)基準のオブジェクトの終了フレーム(0からの番号)
+	int effect_layer;		// 対象エフェクトの現在のレイヤー番号 ※自身のオブジェクトのレイヤー番号
 
 	inline bool is_filter_object() const { return flag & FLAG_FILTER_OBJECT; }
 };
@@ -842,6 +844,6 @@ struct FILTER_PLUGIN_TABLE {
 	// ※オブジェクトと関連しない状態でも呼ばれます
 	// effect_id	: エフェクトのID (アプリ起動毎の固有ID)
 	// userdata		: func_create()で返却したユーザーデータのポインタ
-	void (*func_destroy)(int64_t effect_id ,void* userdata);
+	void (*func_destroy)(int64_t effect_id, void* userdata);
 
 };

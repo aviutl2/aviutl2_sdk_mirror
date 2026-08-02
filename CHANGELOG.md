@@ -1,5 +1,14 @@
 # 変更履歴
 
+## 2026/8/2
+
+- \[auf2] OBJECT_INFOにeffect_layerを追加
+- \[aux2] rendering_scene_video(),rendering_scene_audio()のコールバック処理のスレッドを変更
+- \[aux2] EDIT_HANDLEにrendering_object_video(),rendering_object_audio()を追加
+- \[aux2] EDIT_SECTIONにmove_effect(),get_effect_data_value(),set_effect_data_value(),set_edited_state()を追加
+- \[auf2] FILTER_ITEM_DATAの排他制御を改善、説明を追記
+- \[aux2] create_effect()の説明を追記
+
 ## 2026/7/25
 
 - \[aux2] 選択オブジェクトをdelete_object()で削除した時に正しく選択解除されるように修正

@@ -1,5 +1,16 @@
 # 変更履歴
 
+## 2026/8/8
+
+- \[aux2] register_filter_plugin()で登録したFLAG_USERDATA利用のフィルタプラグインが正しく終了しないのを修正
+- \[aux2] create_object_from_alias()の対象エイリアスのフレーム情報が1フレームの場合に正しく反映されないのを修正
+- \[aux2] move_object_section()で開始点,終了点を移動できるようにした
+- \[aux2] EDIT_SECTIONにマーク関連の関数を追加
+- \[aux2] EDIT_SECTIONにset_palette_info()を追加
+- \[aux2] EDIT_HANDLEにget_effect_item_group_names()を追加
+- \[auf2] copy_image_resource()のコピー元に"layer","before"を追加
+- \[auf2] release_image_resource(),exec_effect()を追加
+
 ## 2026/8/2
 
 - \[auf2] OBJECT_INFOにeffect_layerを追加

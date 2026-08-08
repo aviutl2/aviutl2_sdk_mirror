@@ -365,6 +365,12 @@ struct OBJECT_AUDIO_PARAM {
 	float vol_l, vol_r;	// 音量倍率 (1.0=等倍)
 };
 
+// エフェクト実行の設定パラメータ構造体
+struct EFFECT_ITEM_PARAM {
+	LPCWSTR name;	// 設定名 ※エイリアスファイルの設定のキーの名称
+	LPCSTR value;	// 設定値(UTF8) ※エイリアスファイルの設定値と同じフォーマット
+};
+
 //----------------------------------------------------------------------------------
 
 // d3d11.h向けの前方宣言 ※includeしないで良いように定義
@@ -517,6 +523,8 @@ struct FILTER_PROC_VIDEO {
 	//				  "cache:xxxx"		= キャッシュバッファ(xxxxは任意の名前)
 	//				  "image:xxxx"		= 画像ファイル(xxxxは画像ファイルパス) ※画像はVRAMにキャッシュされます
 	//				  "random"			= 乱数バッファ(0.0〜1.0の乱数値の256x256の領域) ※DXGI_FORMAT_R32_FLOAT(r値のみ)になります
+	//				  "layer:xxxx[+]"	= レイヤー上のオブジェクト(xxxxはレイヤー番号、末尾に"+"指定で追加フィルタを実行)
+	//				  "before"			= 直前オブジェクト
 	// 戻り値		: 失敗した場合はfalse (画像リソース名が不正な場合等)
 	bool (*copy_image_resource)(LPCWSTR dst_resource, LPCWSTR src_resource);
 
@@ -749,6 +757,23 @@ struct FILTER_PROC_VIDEO {
 	// ユーザーデータのポインタ (FLAG_USERDATAが有効の時に設定されます)
 	// func_create()で返却したユーザーデータのポインタ
 	void* userdata;
+
+	// 画像リソースを解放します
+	// resource		: 解放する画像リソース名
+	//				  "resource:xxxx"	= 標準リソース(xxxxは任意の名前)
+	// 戻り値		: 失敗した場合はfalse (画像リソース名が不正な場合等)
+	bool (*release_image_resource)(LPCWSTR resource);
+
+	// 指定のエフェクトを実行します
+	// フィルタ効果、入力項目(図形等)のエフェクトが実行出来ます
+	// name			: 実行するエフェクト名 (エイリアスファイルのeffect.nameの値)
+	// param_list	: 設定パラメータのリストへのポインタ ※nullptrの場合は設定無し
+	// param_num	: 設定パラメータの数
+	// resource		: エフェクトの処理対象の画像リソース名 ※エフェクトが入力項目の場合は新規作成します
+	//				  "object"			= 現在のオブジェクト ※nullptrの指定でも現在のオブジェクトになります
+	//				  "resource:xxxx"	= 標準リソース(xxxxは任意の名前)
+	// 戻り値		: 失敗した場合はfalse (エフェクト名や画像リソース名が不正な場合等)
+	bool (*exec_effect)(LPCWSTR name, EFFECT_ITEM_PARAM* param_list, int param_num, LPCWSTR resource);
 
 };
 

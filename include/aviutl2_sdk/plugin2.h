@@ -415,7 +415,7 @@ struct EDIT_SECTION {
 	// effect	: 対象のエフェクト名 (エイリアスファイルのeffect.nameの値)
 	//			  同じエフェクトが複数ある場合は":n"のサフィックスでインデックス指定出来ます (nは0からの番号)
 	// item		: 対象のトラックバー項目の名称 (エイリアスファイルのキーの名称)
-	// frame	: 取得対象のフレーム番号 ※少数部でフレーム間の位置を指定出来ます
+	// frame	: 取得対象のフレーム番号 ※小数部でフレーム間の位置を指定出来ます
 	// value	: トラックバー項目の値の格納先へのポインタ
 	// 戻り値	: 設定出来た場合はtrue (対象が見つからない場合は失敗します)
 	bool (*get_object_track_value)(OBJECT_HANDLE object, LPCWSTR effect, LPCWSTR item, double frame, double* value);
@@ -540,7 +540,7 @@ struct EDIT_SECTION {
 	// ※フィルタプラグインから呼び出した場合は処理対象のシーンのオブジェクトのみ取得出来ます
 	// effect	: エフェクトのハンドル
 	// item		: 対象のトラックバー項目の名称 (エイリアスファイルのキーの名称)
-	// frame	: 取得対象のフレーム番号 ※少数部でフレーム間の位置を指定出来ます
+	// frame	: 取得対象のフレーム番号 ※小数部でフレーム間の位置を指定出来ます
 	// value	: トラックバー項目の値の格納先へのポインタ
 	// 戻り値	: 設定出来た場合はtrue (対象が見つからない場合は失敗します)
 	bool (*get_effect_track_value)(EFFECT_HANDLE effect, LPCWSTR item, double frame, double* value);
@@ -601,9 +601,10 @@ struct EDIT_SECTION {
 	// 戻り値	: 削除出来た場合はtrue
 	bool (*delete_object_section)(OBJECT_HANDLE object, int section);
 
-	// オブジェクトの中間点(区間)を移動します (call_read_section利用不可)
-	// object	: 中間点を移動するオブジェクトのハンドル
-	// section	: 移動する中間点の区間の番号 (開始位置が中間点の区間番号)
+	// オブジェクトの区間の開始位置を移動します (call_read_section利用不可)
+	// ※移動する区間番号(section)が区間数(最終区間+1)の場合は終了点を移動します
+	// object	: 区間を移動するオブジェクトのハンドル
+	// section	: 移動する区間の番号 (0〜区間数の値)
 	// frame	: 移動先のフレーム番号 ※区間を跨ぐ移動は出来ません
 	// 戻り値	: 移動出来た場合はtrue
 	bool (*move_object_section)(OBJECT_HANDLE object, int section, int frame);
@@ -635,6 +636,43 @@ struct EDIT_SECTION {
 
 	// 編集データを編集済み状態に設定する ※通常は自動的に設定されます
 	void (*set_edited_state)();
+
+	// マークされているフレームの一覧を取得します
+	// frame_list	: フレーム番号リストの格納先へのポインタ
+	// frame_num	: フレーム番号リストの格納先の数
+	// 戻り値		: 取得出来たフレーム番号の数
+	//				  frame_listがnullptrの場合はマークされているフレームの数を返却します
+	int (*get_mark_frame_list)(int* frame_list, int frame_num);
+
+	// 指定フレームのマークのメモを取得します
+ 	// frame	: マークのメモを取得するフレームの番号
+	// 戻り値	: マークのメモへのポインタ (取得出来ない場合はnullptrを返却)　
+	//			  ※マークを編集するかコールバック処理の終了まで有効
+	LPCWSTR (*get_mark_frame_memo)(int frame);
+
+	// 指定フレームをマークします (call_read_section利用不可)
+	// 既にマークされている場合はメモを更新します
+	// frame	: マークを設定するフレームの番号
+	// memo		: マークのメモ (nullptrを指定すると空を設定します)
+	void (*set_mark_frame)(int frame, LPCWSTR memo);
+
+	// 指定フレームのマークを解除します (call_read_section利用不可)
+	// frame	: マークを解除するフレームの番号
+	void (*clear_mark_frame)(int frame);
+
+	// 指定フレームのマークを移動します (call_read_section利用不可)
+	// frame	: マークを移動するフレームの番号
+	// frame_to	: マークの移動先のフレームの番号
+	// 戻り値	: 移動定出来た場合はtrue  (移動元がマーク未設定、移動先がマーク済みの場合は失敗します)
+	bool (*move_mark_frame)(int frame, int frame_to);
+
+	// 指定のパレットの情報を設定します (call_read_section利用不可)
+	// ※パレットファイルの保存とリロード処理をします
+	// name			: パレット名
+	// info			: パレット情報へのポインタ
+	// info_size	: パレット情報のサイズ ※PALETTE_INFOのサイズ
+	// 戻り値		: 取得出来た場合はtrue (対象が見つからない場合は失敗します)
+	bool (*set_palette_info)(LPCWSTR name, PALETTE_INFO* info, int info_size);
 
 };
 
@@ -796,6 +834,17 @@ struct EDIT_HANDLE {
 	//	sample_num					: レンダリングした音声のサンプル数
 	// 戻り値						: レンダリング要求が成功した場合はtrue (出力中等は失敗します)
 	bool (*rendering_object_audio)(OBJECT_HANDLE object, int frame, bool apply_effect, void* param, void (*func_proc_rendering_audio)(void* param, int frame, const float* buffer0, const float* buffer1, int sample_num));
+
+	// 指定の設定項目が所属するグループの所属アイテム名を取得します
+	// effect		: 対象のエフェクト名 (エイリアスファイルのeffect.nameの値)
+	// item			: 対象の設定項目の名称 (エイリアスファイルのキーの名称)
+	// item_names	: グループの所属アイテム名の格納先へのポインタ
+	// item_num		: グループの所属アイテム名の格納先の数
+	// item_index	: 対象の設定項目のグループ内のインデックスの格納先へのポインタ (nullptrの場合は格納しません)
+	// 戻り値		: 取得出来た所属アイテム名の数 (グループに所属していない場合は0を返却)
+	//				  item_namesがnullptrの場合は所属アイテム数を返却します
+	int (*get_effect_item_group_names)(LPCWSTR effect, LPCWSTR item, LPCWSTR* item_names, int item_num, int* item_index);
+
 };
 
 //----------------------------------------------------------------------------------
@@ -858,6 +907,7 @@ struct HOST_APP_TABLE {
 
 	// フィルタプラグインを登録する
 	// filter_plugin_table	: フィルタプラグイン構造体
+	// ※FLAG_USERDATAを利用する場合は編集リソースが破棄されてからUninitializePlugin()が呼ばれます
 	void (*register_filter_plugin)(FILTER_PLUGIN_TABLE* filter_plugin_table);
 
 	// スクリプトモジュールを登録する

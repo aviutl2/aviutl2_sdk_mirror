@@ -1,5 +1,14 @@
 # 変更履歴
 
+## 2026/8/16
+
+- \[aux2] delete_object()で削除したオブジェクトがget_selected_object()に含まれることがあるのを修正
+- \[aux2] set_palette_info()の処理を改修して設定時に表示が更新されないことがあるのを修正
+- \[aux2] get_effect_item_group_names()でグループ項目を指定出来るようにした
+- \[aux2] enum_effect_item()で取得される設定項目種別を追加
+- \[auf2] OBJECT_INFOにorigin_frameを追加
+- \[cache2] CACHE_HANDLEにclear_image_cache(),clear_audio_cache()を追加
+
 ## 2026/8/8
 
 - \[aux2] register_filter_plugin()で登録したFLAG_USERDATA利用のフィルタプラグインが正しく終了しないのを修正

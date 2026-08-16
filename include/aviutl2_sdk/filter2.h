@@ -347,6 +347,7 @@ struct OBJECT_INFO {
 	int frame_s;			// 全体(シーン)基準のオブジェクトの開始フレーム(0からの番号)
 	int frame_e;			// 全体(シーン)基準のオブジェクトの終了フレーム(0からの番号)
 	int effect_layer;		// 対象エフェクトの現在のレイヤー番号 ※自身のオブジェクトのレイヤー番号
+	int origin_frame;		// 全体(シーン)基準のレンダリングの起点フレーム(0からの整数)
 
 	inline bool is_filter_object() const { return flag & FLAG_FILTER_OBJECT; }
 };

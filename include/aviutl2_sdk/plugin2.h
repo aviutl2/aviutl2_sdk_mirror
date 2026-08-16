@@ -667,7 +667,7 @@ struct EDIT_SECTION {
 	bool (*move_mark_frame)(int frame, int frame_to);
 
 	// 指定のパレットの情報を設定します (call_read_section利用不可)
-	// ※パレットファイルの保存とリロード処理をします
+	// ※パレットファイルの保存をします
 	// name			: パレット名
 	// info			: パレット情報へのポインタ
 	// info_size	: パレット情報のサイズ ※PALETTE_INFOのサイズ
@@ -752,7 +752,7 @@ struct EDIT_HANDLE {
 	bool (*enum_effect_item)(LPCWSTR effect, void* param, void (*func_proc_enum_effect_item)(void* param, LPCWSTR name, int type));
 	// 設定項目種別 ※今後追加される可能性があります
 	static constexpr int EFFECT_ITEM_TYPE_INTEGER	= 1;	// 整数
-	static constexpr int EFFECT_ITEM_TYPE_NUMBER	= 2;	// 数値
+	static constexpr int EFFECT_ITEM_TYPE_NUMBER	= 2;	// 数値(トラックバー)
 	static constexpr int EFFECT_ITEM_TYPE_CHECK		= 3;	// チェックボックス
 	static constexpr int EFFECT_ITEM_TYPE_TEXT		= 4;	// テキスト
 	static constexpr int EFFECT_ITEM_TYPE_STRING	= 5;	// 文字列
@@ -767,6 +767,9 @@ struct EDIT_HANDLE {
 	static constexpr int EFFECT_ITEM_TYPE_FIGURE	= 14;	// 図形
 	static constexpr int EFFECT_ITEM_TYPE_DATA		= 15;	// データ
 	static constexpr int EFFECT_ITEM_TYPE_FOLDER	= 16;	// フォルダ
+	static constexpr int EFFECT_ITEM_TYPE_NUMBER_GROUP	= 17;	// 数値(トラックバー)グループ
+	static constexpr int EFFECT_ITEM_TYPE_GROUP			= 18;	// 設定グループ(明示的なグループのみ) ※設定値無し
+	static constexpr int EFFECT_ITEM_TYPE_SEPARATOR		= 19;	// セパレーター ※設定値無し
 
 	// 現在のシーンの映像のレンダリングをします
 	// この関数はレンダリングのタスクを追加するのみで完了します
@@ -836,6 +839,7 @@ struct EDIT_HANDLE {
 	bool (*rendering_object_audio)(OBJECT_HANDLE object, int frame, bool apply_effect, void* param, void (*func_proc_rendering_audio)(void* param, int frame, const float* buffer0, const float* buffer1, int sample_num));
 
 	// 指定の設定項目が所属するグループの所属アイテム名を取得します
+	// グループ項目を直接指定することも出来ます (item_indexにはnullptrを指定します)
 	// effect		: 対象のエフェクト名 (エイリアスファイルのeffect.nameの値)
 	// item			: 対象の設定項目の名称 (エイリアスファイルのキーの名称)
 	// item_names	: グループの所属アイテム名の格納先へのポインタ

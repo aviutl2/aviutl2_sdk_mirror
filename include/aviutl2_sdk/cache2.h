@@ -123,14 +123,14 @@ struct AUDIO_INFO {
 struct CACHE_HANDLE {
 	// 画像キャッシュデータを取得する
 	// identifier	: キャッシュ識別のポインタ ※任意の静的なポインタを指定する(CACHE_HANDLEやFILTER_PLUGIN_TABLE等)
-	// name			: キャッシュ識別の名前 ※任意の名前を付けることが出来る
+	// name			: キャッシュ識別の名前 ※作成した画像キャッシュの識別名
 	// 戻り値		: 画像キャッシュデータ
 	//				  取得出来ない場合は返却オブジェクトがfalseとなる
 	CACHE_IMAGE (*get_image_cache)(void* identifier, LPCWSTR name);
 
 	// 画像キャッシュデータを作成する
 	// identifier	: キャッシュ識別のポインタ ※任意の静的なポインタを指定する(CACHE_HANDLEやFILTER_PLUGIN_TABLE等)
-	// name			: キャッシュ識別の名前 ※任意の名前を付けることが出来る
+	// name			: キャッシュ識別の名前 ※任意の識別名を付けることが出来る
 	// width,height	: 作成するキャッシュの画像サイズ
 	// 戻り値		: 画像キャッシュデータ
 	//				  返却されたキャッシュに画像データを書き込むことが出来る
@@ -138,14 +138,14 @@ struct CACHE_HANDLE {
 
 	// 音声キャッシュデータを取得する
 	// identifier	: キャッシュ識別のポインタ ※任意の静的なポインタを指定する(CACHE_HANDLEやFILTER_PLUGIN_TABLE等)
-	// name			: キャッシュ識別の名前 ※任意の名前を付けることが出来る
+	// name			: キャッシュ識別の名前 ※作成した音声キャッシュの識別名
 	// 戻り値		: 音声キャッシュデータ
 	//				  取得出来ない場合は返却オブジェクトがfalseとなる
 	CACHE_AUDIO (*get_audio_cache)(void* identifier, LPCWSTR name);
 
 	// 音声キャッシュデータを作成する
 	// identifier	: キャッシュ識別のポインタ ※任意の静的なポインタを指定する(CACHE_HANDLEやFILTER_PLUGIN_TABLE等)
-	// name			: キャッシュ識別の名前 ※任意の名前を付けることが出来る
+	// name			: キャッシュ識別の名前 ※任意の識別名を付けることが出来る
 	// sample_num	: 作成する音声キャッシュのサンプル数
 	// channel_num	: 作成する音声キャッシュのチャンネル数 ( 1 = モノラル / 2 = ステレオ )
 	// 戻り値		: 音声キャッシュデータ
@@ -201,6 +201,16 @@ struct CACHE_HANDLE {
 	// buffer1		: サンプル(右チャンネル)取得先のバッファへのポインタ
 	// 戻り値		: 実際に取得したサンプル数
 	int (*get_audio_file_data)(LPCWSTR file, int track, int64_t sample_index, int sample_num, float* buffer0, float* buffer1);
+
+	// 画像キャッシュデータをクリアする
+	// identifier	: キャッシュ識別のポインタ ※任意の静的なポインタを指定する(CACHE_HANDLEやFILTER_PLUGIN_TABLE等)
+	// name			: キャッシュ識別の名前 ※作成した画像キャッシュの識別名
+	void (*clear_image_cache)(void* identifier, LPCWSTR name);
+
+	// 音声キャッシュデータをクリアする
+	// identifier	: キャッシュ識別のポインタ ※任意の静的なポインタを指定する(CACHE_HANDLEやFILTER_PLUGIN_TABLE等)
+	// name			: キャッシュ識別の名前 ※作成した音声キャッシュの識別名
+	void (*clear_audio_cache)(void* identifier, LPCWSTR name);
 
 };
 

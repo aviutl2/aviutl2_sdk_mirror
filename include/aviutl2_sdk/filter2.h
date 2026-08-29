@@ -203,6 +203,29 @@ struct FILTER_ITEM_SEPARATOR {
 	LPCWSTR name;					// 設定名
 };
 
+// 非表示条件項目構造体
+// 非表示条件を満たした項目を非表示にすることが出来ます
+// 例：FILTER_ITEM_HIDE_RULE hide = { L"ファイル", L"チェック", FILTER_ITEM_HIDE_RULE::OPERATOR::EQUAL, 0 };
+struct FILTER_ITEM_HIDE_RULE {
+	enum class OPERATOR {
+		EQUAL		= 0, // == (等しい)
+		NOT_EQUAL	= 1, // != (等しくない)
+		GREATER		= 2, // > (より大きい)
+		LESS		= 3, // < (より小さい)
+	};
+	FILTER_ITEM_HIDE_RULE(LPCWSTR name, LPCWSTR condition_name, OPERATOR condition_operator = OPERATOR::EQUAL, int condition_value = 0)
+		: name(name), condition_name(condition_name), condition_operator(condition_operator), condition_value(condition_value) {}
+	LPCWSTR type = L"hiderule";			// 設定の種別
+	LPCWSTR name;						// 非表示にする設定名 ※設定値を持つ項目のみ
+	LPCWSTR condition_name;				// 非表示の条件の設定名
+										// チェックボックス項目(セクション毎を除く),リスト選択項目,ファイル選択項目,フォルダ選択項目
+										// ※ファイル,フォルダ選択項目は選択されているかを返却(0/1)
+										// ※nullptrを指定した場合は常に非表示
+										// ※"filter"を指定した場合はフィルタオブジェクトかを返却(0/1)
+	const OPERATOR condition_operator;	// 非表示の条件の比較種別
+	const int condition_value;			// 非表示の条件の比較値
+};
+
 //----------------------------------------------------------------------------------
 
 // 頂点データ構造体(描画色)

@@ -1,5 +1,9 @@
 # 変更履歴
 
+## 2026/8/31
+
+- \[auf2] FILTER_PLUGIN_TABLEのitemsでFILTER_ITEM_HIDE_RULEより後の設定項目の値が正しく反映されないのを修正
+
 ## 2026/8/29
 
 - \[aux2] move_object_section()で開始点,終了点を移動した時にレイヤー範囲が再描画されないのを修正

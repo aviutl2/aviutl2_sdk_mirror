@@ -1,5 +1,9 @@
 # 変更履歴
 
+## 2026/9/5
+
+- \[auf2] FILTER_ITEM_HIDE_RULEの非表示条件の対象項目を追加
+
 ## 2026/8/31
 
 - \[auf2] FILTER_PLUGIN_TABLEのitemsでFILTER_ITEM_HIDE_RULEより後の設定項目の値が正しく反映されないのを修正

@@ -123,6 +123,15 @@ enum class EVENT_TYPE : int {
 	CHANGE_EDIT_FRAME = 2,		// 現在の編集フレームの移動
 	CHANGE_EDIT_SCENE = 3,		// 現在の編集シーンの変更 ※シーン情報の更新も含まれる
 	CHANGE_FOCUS_OBJECT = 4,	// 選択されているオブジェクトの変更
+	CHANGE_EDIT_STATE = 5,		// 編集状態の変更(プレビュー再生・ファイル出力の開始終了時)
+};
+
+// オブジェクトフラグ種別
+enum class OBJECT_FLAG_TYPE : int {
+	ENABLE_GROUP = 1,			// グループ制御対象の有効・無効
+	ENABLE_CAMERA = 2,			// カメラ制御対象の有効・無効
+	CLIPPING_OBJECT = 3,		// クリッピングオブジェクトの有効・無効
+	CLIPPING_UPPER_OBJECT = 4,	// 上のオブジェクトでクリッピングの有効・無効
 };
 
 //----------------------------------------------------------------------------------
@@ -130,13 +139,13 @@ enum class EVENT_TYPE : int {
 // 編集情報構造体
 // フレーム番号、レイヤー番号が0からの番号になります ※UI表示と異なります
 struct EDIT_INFO {
-	int width, height;	// シーンの解像度
-	int rate, scale;	// シーンのフレームレート
-	int sample_rate;	// シーンのサンプリングレート
-	int frame;			// 現在のカーソルのフレーム番号
-	int layer;			// 現在の選択レイヤー番号
-	int frame_max;		// オブジェクトが存在する最大のフレーム番号
-	int layer_max;		// オブジェクトが存在する最大のレイヤー番号
+	int width, height;			// シーンの解像度
+	int rate, scale;			// シーンのフレームレート
+	int sample_rate;			// シーンのサンプリングレート
+	int frame;					// 現在のカーソルのフレーム番号
+	int layer;					// 現在の選択レイヤー番号
+	int frame_max;				// オブジェクトが存在する最大のフレーム番号
+	int layer_max;				// オブジェクトが存在する最大のレイヤー番号
 	int display_frame_start;	// レイヤー編集で表示されているフレームの開始番号
 	int display_layer_start;	// レイヤー編集で表示されているレイヤーの開始番号
 	int display_frame_num;		// レイヤー編集で表示されているフレーム数 ※厳密ではないです
@@ -146,7 +155,11 @@ struct EDIT_INFO {
 	float grid_bpm_tempo;		// グリッド(BPM)のテンポ ※先頭のBPM情報
 	int grid_bpm_beat;			// グリッド(BPM)の拍子 ※先頭のBPM情報
 	float grid_bpm_offset;		// グリッド(BPM)の拍子オフセット ※先頭のBPM情報
-	int scene_id;		// シーンのID
+	int scene_id;				// シーンのID
+	struct COLOR {
+		unsigned char r, g, b, a;
+	};
+	COLOR background;			// シーンの背景色
 };
 
 // 編集セクション構造体
@@ -671,8 +684,30 @@ struct EDIT_SECTION {
 	// name			: パレット名
 	// info			: パレット情報へのポインタ
 	// info_size	: パレット情報のサイズ ※PALETTE_INFOのサイズ
-	// 戻り値		: 取得出来た場合はtrue (対象が見つからない場合は失敗します)
+	// 戻り値		: 設定出来た場合はtrue (対象が見つからない場合は失敗します)
 	bool (*set_palette_info)(LPCWSTR name, PALETTE_INFO* info, int info_size);
+
+	// 指定のオブジェクトフラグの状態を取得します
+	// object	: フラグを取得するオブジェクトのハンドル
+	// type		: オブジェクトフラグの種別
+	// 戻り値	: フラグが有効か？ (取得出来ない場合はfalseを返却)
+	bool (*get_object_flag)(OBJECT_HANDLE object, OBJECT_FLAG_TYPE type);
+
+	// 指定のオブジェクトフラグの状態を設定します (call_read_section利用不可)
+	// object	: フラグを設定するオブジェクトのハンドル
+	// type		: オブジェクトフラグの種別
+	// flag		: フラグの状態
+	void (*set_object_flag)(OBJECT_HANDLE object, OBJECT_FLAG_TYPE type, bool flag);
+
+	// オブジェクトIDを取得します
+	// object	: IDを取得するオブジェクトのハンドル
+	// 戻り値	: オブジェクトID (取得出来ない場合は0を返却)
+	int64_t (*get_object_id)(OBJECT_HANDLE object);
+
+	// エフェクトIDを取得します
+	// effect	: IDを取得するエフェクトのハンドル
+	// 戻り値	: エフェクトID (取得出来ない場合は0を返却)
+	int64_t (*get_effect_id)(EFFECT_HANDLE effect);
 
 };
 
@@ -796,7 +831,7 @@ struct EDIT_HANDLE {
 	bool (*rendering_scene_audio)(int frame, void* param, void (*func_proc_rendering_audio)(void* param, int frame, const float* buffer0, const float* buffer1, int sample_num));
 
 	// レンダリング中のタスクが全て完了するまで待機します
-	// ※参照ロック、編集ロック状態で呼び出すとデットロックする可能性があります
+	// ※参照ロック、編集ロック状態で呼び出すとデッドロックする可能性があります
 	void (*wait_rendering_task)();
 
 	// フォント名の一覧をコールバック関数(func_proc_enum_font)で取得します
@@ -848,6 +883,62 @@ struct EDIT_HANDLE {
 	// 戻り値		: 取得出来た所属アイテム名の数 (グループに所属していない場合は0を返却)
 	//				  item_namesがnullptrの場合は所属アイテム数を返却します
 	int (*get_effect_item_group_names)(LPCWSTR effect, LPCWSTR item, LPCWSTR* item_names, int item_num, int* item_index);
+
+	// シーン名の一覧をコールバック関数(func_proc_enum_scene)で取得します
+	// シーン情報を排他制御する為に参照ロックします。※同一スレッドで既にロック状態の場合はそのまま取得します。
+	// param				: 任意のユーザーデータのポインタ
+	// func_proc_enum_scene	: シーン名の取得処理のコールバック関数
+	void (*enum_scene_name)(void* param, void (*func_proc_enum_scene)(void* param, LPCWSTR name, int scene_id));
+
+	// 指定のシーンに切り替えます
+	// 参照ロック、編集ロック状態では利用出来ません
+	// scene_id	: シーンのID
+	// 戻り値	: 成功した場合はtrue (シーンが存在しない場合や出力中等は失敗します)
+	bool (*select_scene)(int scene_id);
+
+	// シーンを作成します (作成したシーンに切り替わります)
+	// 参照ロック、編集ロック状態では利用出来ません
+	// name				: シーン名
+	// label			: シーンのラベル (nullptrか空文字を指定するとラベル無し)　
+	// width, height	: シーンの解像度
+	// rate, scale		: シーンのフレームレート
+	// sample_rate		: シーンのサンプリングレート
+	// background		: シーンの背景色 (background.aが255以外の場合は透明色)
+	// 戻り値			: 成功した場合はtrue (出力中等は失敗します)
+	bool (*create_scene)(LPCWSTR name, LPCWSTR label, int width, int height, int rate, int scale, int sample_rate, EDIT_INFO::COLOR background);
+
+	// プロジェクトを新規作成します
+	// 参照ロック、編集ロック状態では利用出来ません
+	// width, height	: シーンの解像度
+	// rate, scale		: シーンのフレームレート
+	// sample_rate		: シーンのサンプリングレート
+	// background		: シーンの背景色 (background.aが255以外の場合は透明色)
+	// show_confirm		: 現在のプロジェクトの保存・キャンセルの確認ダイアログを表示する
+	// 戻り値			: 成功した場合はtrue (出力中等は失敗します)
+	bool (*create_project)(int width, int height, int rate, int scale, int sample_rate, EDIT_INFO::COLOR background, bool show_confirm);
+
+	// 指定のプロジェクトファイルを開きます
+	// 参照ロック、編集ロック状態では利用出来ません
+	// file			: プロジェクトファイルのパス
+	// show_confirm	: 現在のプロジェクトの保存・キャンセルの確認ダイアログを表示する
+	// 戻り値		: 成功した場合はtrue (出力中等は失敗します)
+	bool (*open_project_file)(LPCWSTR file, bool show_confirm);
+
+	// 指定のプロジェクトファイルへ保存します (自動バックアップと同じ処理で保存されます)　
+	// 参照ロック、編集ロック状態では利用出来ません
+	// file			: プロジェクトファイルのパス
+	// 戻り値		: 成功した場合はtrue (出力中等は失敗します)
+	bool (*save_project_file)(LPCWSTR file);
+
+	// 現在のシーンを出力プラグインでファイル出力します
+	// この関数はファイル出力を開始するのみで完了します
+	// 参照ロック、編集ロック状態では利用出来ません
+	// file					: 出力ファイルのパス
+	// output_plugin		: 出力プラグイン名
+	// func_project_config	: 出力開始時にプロジェクトのファイル出力設定を反映させるコールバック関数 (nullptrなら呼ばれません)
+	//						  ※出力プラグインのFLAG_PROJECT_CONFIGが有効の場合にfunc_save_project_config()と同じ設定をすることで反映出来ます
+	// 戻り値				: 成功した場合はtrue (出力中等は失敗します)
+	bool (*output_file)(LPCWSTR file, LPCWSTR output_plugin, void* param, void (*func_project_config)(void* param, PROJECT_FILE* project));
 
 };
 

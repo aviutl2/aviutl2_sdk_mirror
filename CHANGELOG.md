@@ -1,5 +1,18 @@
 # 変更履歴
 
+## 2026/9/19
+
+- \[auf2] set_blend_mode_force(),get_group_control_object(),get_group_matrix()を追加
+- \[auf2] FILTER_ITEM_BUTTONのコールバック関数の引数を追加
+- \[auf2] FILTER_PLUGIN_TABLEにFLAG_HIDEMENUのフラグを追加
+- \[aux2] EDIT_SECTIONにget_object_flag(),set_object_flag()を追加
+- \[aux2] EDIT_SECTIONにget_object_id(),get_effect_id()を追加
+- \[aux2] EDIT_HANDLEにenum_scene_name(),select_scene(),create_scene()を追加
+- \[aux2] EDIT_HANDLEにcreate_project(),open_project_file(),save_project_file()を追加
+- \[aux2] EDIT_HANDLEにoutput_file()を追加
+- \[aux2] EDIT_INFOにbackgroundを追加
+- \[aux2] register_event_listener()のイベント種別にCHANGE_EDIT_STATEを追加
+
 ## 2026/9/5
 
 - \[auf2] FILTER_ITEM_HIDE_RULEの非表示条件の対象項目を追加

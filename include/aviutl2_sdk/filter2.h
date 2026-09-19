@@ -160,12 +160,17 @@ struct FILTER_ITEM_GROUP {
 
 // ボタン項目構造体
 // ボタンを押すとコールバック関数が呼ばれます ※plugin2.hの編集のコールバック関数と同様な形になります
-// 例：FILTER_ITEM_BUTTON button = { L"初期化", [](EDIT_SECTION* edit) { /* ボタンを押した時の処理 */ } };
+// 例：FILTER_ITEM_BUTTON button = { L"初期化", [](EDIT_SECTION* edit, OBJECT_HANDLE object, LPCWSTR effect, LPCWSTR item) {
+//        /* ボタンを押した時の処理 (引数はEDIT_SECTION::get_object_item_value()の引数と同じ形式になります) */
+//     } };
 struct FILTER_ITEM_BUTTON {
-	FILTER_ITEM_BUTTON(LPCWSTR name, void (*callback)(EDIT_SECTION* edit)) : name(name), callback(callback) {}
+	FILTER_ITEM_BUTTON(LPCWSTR name, void (*callback)(EDIT_SECTION* edit, OBJECT_HANDLE object, LPCWSTR effect, LPCWSTR item))
+		: name(name), callback2(callback) {}
+	FILTER_ITEM_BUTTON(LPCWSTR name, void (*callback)(EDIT_SECTION* edit)) : name(name), callback(callback) {} // ※互換対応
 	LPCWSTR type = L"button";			// 設定の種別
 	LPCWSTR name;						// 設定名
-	void (*callback)(EDIT_SECTION*);	// ボタンを押した時のコールバック関数 (呼び出し時に各設定項目の設定値が更新されます)
+	void (*callback)(EDIT_SECTION*) = nullptr; // ボタンを押した時のコールバック関数 (呼び出し時に各設定項目の設定値が更新されます)
+	void (*callback2)(EDIT_SECTION*, OBJECT_HANDLE, LPCWSTR, LPCWSTR) = nullptr; // 同上
 };
 
 // 文字列項目構造体 ※1行の文字列
@@ -404,6 +409,10 @@ struct ID3D11Texture2D;
 struct ID3D11BlendState;
 struct ID3D11SamplerState;
 struct IDWriteFont;
+// DirectXMath.h向けの前方宣言
+namespace DirectX {
+	struct XMMATRIX;
+}
 
 // 画像フィルタ処理用構造体
 struct FILTER_PROC_VIDEO {
@@ -489,6 +498,7 @@ struct FILTER_PROC_VIDEO {
 	void (*set_default_anchor)(int width, int height);
 
 	// 描画時の合成モードを設定します
+	// フレームバッファへの描画の合成モードは元々の合成モードが通常の場合のみ反映されます
 	// 合成モードを利用すると描画処理が重くなります
 	// blend	: 合成モード
 	void (*set_blend_mode)(BLEND_MODE blend);
@@ -801,6 +811,21 @@ struct FILTER_PROC_VIDEO {
 	// 戻り値		: 失敗した場合はfalse (エフェクト名や画像リソース名が不正な場合等)
 	bool (*exec_effect)(LPCWSTR name, EFFECT_ITEM_PARAM* param_list, int param_num, LPCWSTR resource);
 
+	// 描画時の合成モードを設定します
+	// set_blend_mode()と異なりフレームバッファへの描画の合成モードも常に反映されます
+	// 合成モードを利用すると描画処理が重くなります
+	// blend	: 合成モード
+	void (*set_blend_mode_force)(BLEND_MODE blend);
+
+	// 現在のオブジェクトに影響しているグループ制御オブジェクトを取得します
+	// layer	: 上位の影響しているグループ制御のインデックス(0は直前のグループ制御) 
+	// 戻り値	: 取得したグループ制御オブジェクトのハンドル (グループ制御対象外の場合はnullptrを返却)
+	OBJECT_HANDLE (*get_group_control_object)(int index);
+
+	// 現在のオブジェクトに適用されるグループ制御の座標変換行列を取得します (グループ制御対象を結合した行列)
+	// 戻り値	: グループ制御対象外の場合はfalse
+	bool (*get_group_matrix)(DirectX::XMMATRIX* matrix);
+
 };
 
 //----------------------------------------------------------------------------------
@@ -871,6 +896,7 @@ struct FILTER_PLUGIN_TABLE {
 	static constexpr int FLAG_FILTER = 8;		// フィルタオブジェクトをサポートする (フィルタオブジェクトに対応する場合)
 												// フィルタオブジェクトの場合は画像サイズの変更が出来ません
 	static constexpr int FLAG_USERDATA = 16;	// ユーザーデータをサポートする ※func_create(),func_destroy()が呼ばれるようになります
+	static constexpr int FLAG_HIDEMENU = 32;	// オブジェクト・フィルタ効果の追加メニューリストに表示しない
 	LPCWSTR name;				// プラグインの名前
 	LPCWSTR label;				// ラベルの初期値 (nullptrならデフォルトのラベルになります)
 	LPCWSTR information;		// プラグインの情報

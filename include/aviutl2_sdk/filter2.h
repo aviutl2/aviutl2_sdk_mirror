@@ -34,6 +34,8 @@ struct EDIT_SECTION;
 
 // オブジェクトハンドル
 typedef void* OBJECT_HANDLE;
+// エフェクトハンドル
+typedef void* EFFECT_HANDLE;
 
 // トラックバー項目構造体
 // 例：FILTER_ITEM_TRACK track = { L"数値", 100.0, 0.0, 1000.0, 0.01 };
@@ -352,6 +354,7 @@ struct SCENE_INFO {
 	int width, height;		// シーンの解像度
 	int rate, scale;		// シーンのフレームレート
 	int sample_rate;		// シーンのサンプリングレート
+	int id;					// シーンのID
 };
 
 // オブジェクト情報構造体
@@ -378,6 +381,8 @@ struct OBJECT_INFO {
 	int frame_e;			// 全体(シーン)基準のオブジェクトの終了フレーム(0からの番号)
 	int effect_layer;		// 対象エフェクトの現在のレイヤー番号 ※自身のオブジェクトのレイヤー番号
 	int origin_frame;		// 全体(シーン)基準のレンダリングの起点フレーム(0からの整数)
+	OBJECT_HANDLE handle;	// オブジェクトのハンドル
+	EFFECT_HANDLE effect_handle;	// エフェクトのハンドル
 
 	inline bool is_filter_object() const { return flag & FLAG_FILTER_OBJECT; }
 };
@@ -802,12 +807,14 @@ struct FILTER_PROC_VIDEO {
 
 	// 指定のエフェクトを実行します
 	// フィルタ効果、入力項目(図形等)のエフェクトが実行出来ます
+	// ※name,param_list,resourceの全てをnullptr指定すると自身以降のフィルタ効果を実行します
 	// name			: 実行するエフェクト名 (エイリアスファイルのeffect.nameの値)
 	// param_list	: 設定パラメータのリストへのポインタ ※nullptrの場合は設定無し
 	// param_num	: 設定パラメータの数
 	// resource		: エフェクトの処理対象の画像リソース名 ※エフェクトが入力項目の場合は新規作成します
 	//				  "object"			= 現在のオブジェクト ※nullptrの指定でも現在のオブジェクトになります
 	//				  "resource:xxxx"	= 標準リソース(xxxxは任意の名前)
+	//				  ※標準リソースが対象の場合も現在のオブジェクトの画像パラメータが参照・更新されます
 	// 戻り値		: 失敗した場合はfalse (エフェクト名や画像リソース名が不正な場合等)
 	bool (*exec_effect)(LPCWSTR name, EFFECT_ITEM_PARAM* param_list, int param_num, LPCWSTR resource);
 

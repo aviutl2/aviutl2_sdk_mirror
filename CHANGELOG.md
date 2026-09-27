@@ -1,5 +1,11 @@
 # 変更履歴
 
+## 2026/9/27
+
+- \[auf2] exec_effect()に自身以降のフィルタ効果を実行する指定を追加
+- \[auf2] OBJECT_INFOにhandle,effect_handleを追加
+- \[auf2] SCENE_INFOにidを追加
+
 ## 2026/9/19
 
 - \[auf2] set_blend_mode_force(),get_group_control_object(),get_group_matrix()を追加

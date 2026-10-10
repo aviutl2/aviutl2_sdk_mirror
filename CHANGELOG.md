@@ -1,5 +1,12 @@
 # 変更履歴
 
+## 2026/10/10
+
+- \[auf2] get_output_image_param(),get_output_audio_param()の対象をnullptr指定した時に正しく取得出来ないことがあるのを修正
+- \[aux2] ドラッグ操作等による編集中(Undo登録中)の状態でcall_edit_section()が失敗とならないのを修正
+- \[aux2] EDIT_SECTIONにget_layer_color(),set_layer_color()を追加
+- \[auf2] SCENE_INFOにorigin_idを追加
+
 ## 2026/9/27
 
 - \[auf2] exec_effect()に自身以降のフィルタ効果を実行する指定を追加

@@ -709,6 +709,16 @@ struct EDIT_SECTION {
 	// 戻り値	: エフェクトID (取得出来ない場合は0を返却)
 	int64_t (*get_effect_id)(EFFECT_HANDLE effect);
 
+	// レイヤーの背景色を取得します
+	// layer	: レイヤー番号
+	// 戻り値	: レイヤーの背景色 ※デフォルト色の場合は透明色(0,0,0,0)を返却
+	PIXEL_RGBA (*get_layer_color)(int layer);
+
+	// レイヤーの背景色を設定します (call_read_section利用不可)
+	// layer	: レイヤー番号
+	// color	: レイヤーの背景色 ※aが255以外の場合はデフォルト色になります
+	void (*set_layer_color)(int layer, PIXEL_RGBA color);
+
 };
 
 // 編集ハンドル構造体
@@ -720,7 +730,7 @@ struct EDIT_HANDLE {
 	// コールバック関数はメインスレッドから呼ばれます
 	// func_proc_edit	: 編集処理のコールバック関数
 	// 戻り値			: trueなら成功
-	//					  編集が出来ない場合(出力中等)に失敗します
+	//					  編集が出来ない場合(出力中やドラッグ編集中等)に失敗します
 	bool (*call_edit_section)(void (*func_proc_edit)(EDIT_SECTION* edit));
 
 	// call_edit_section()に引数paramを渡せるようにした関数です

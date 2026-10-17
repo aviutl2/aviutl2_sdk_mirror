@@ -5,7 +5,7 @@
 - \[aux2] get_mouse_layer_frame(),pos_to_layer_frame()がtrueとなる条件を実際のレイヤー編集領域のみとなるように修正
 - \[aux2] set_object_item_value(),set_effect_item_value()で設定値が不正な場合にfalseが返却されるように修正
 - \[aux2] get_palette_info()でPALETTE_INFOよりサイズが小さい場合に落ちるのを修正
-- \[aux2] EDIT_HANDLEにget_high_dip_ratio()を追加
+- \[aux2] EDIT_HANDLEにget_high_dpi_ratio()を追加
 - \[auf2] SCENE_INFOにflag,rendering_idを追加
 
 ## 2026/10/10

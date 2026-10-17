@@ -952,7 +952,7 @@ struct EDIT_HANDLE {
 
 	// 高DPIの拡大比率を取得します
 	// 戻り値	: 高DPIの拡大比率
-	float (*get_high_dip_ratio)();
+	float (*get_high_dpi_ratio)();
 
 };
 

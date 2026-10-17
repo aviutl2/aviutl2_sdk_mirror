@@ -950,6 +950,10 @@ struct EDIT_HANDLE {
 	// 戻り値				: 成功した場合はtrue (出力中等は失敗します)
 	bool (*output_file)(LPCWSTR file, LPCWSTR output_plugin, void* param, void (*func_project_config)(void* param, PROJECT_FILE* project));
 
+	// 高DPIの拡大比率を取得します
+	// 戻り値	: 高DPIの拡大比率
+	float (*get_high_dip_ratio)();
+
 };
 
 //----------------------------------------------------------------------------------

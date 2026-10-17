@@ -356,6 +356,11 @@ struct SCENE_INFO {
 	int sample_rate;		// シーンのサンプリングレート
 	int id;					// シーンのID
 	int origin_id;			// 描画処理の起点のシーンのID
+	int flag;				// フラグ
+	int64_t rendering_id;	// シーンの描画処理毎のID (画像・音声でID系統が異なります)
+	static constexpr int FLAG_REFERENCE_FRAME = 1; // シーンチェンジ、モーションブラーの参照フレームの描画処理か？
+
+	inline bool is_reference_frame() const { return flag & FLAG_REFERENCE_FRAME; }
 };
 
 // オブジェクト情報構造体

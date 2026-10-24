@@ -895,6 +895,16 @@ struct FILTER_PROC_AUDIO {
 	// func_create()で返却したユーザーデータのポインタ
 	void* userdata;
 
+	// 現在のオーディオバッファのデータを取得する
+	// buffer		: 音声データの格納先へのポインタ ※音声データはPCM(float)32bit
+	// channel		: 音声データのチャンネル ( 0 = 左チャンネル / 1 = 右チャンネル )
+	void (*get_audiobuffer_data)(float* buffer, int channel);
+
+	// 現在のオーディオバッファのデータを設定する
+	// buffer		: 音声データへのポインタ ※音声データはPCM(float)32bit
+	// channel		: 音声データのチャンネル ( 0 = 左チャンネル / 1 = 右チャンネル )
+	void (*set_audiobuffer_data)(const float* buffer, int channel);
+
 };
 
 //----------------------------------------------------------------------------------

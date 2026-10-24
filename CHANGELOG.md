@@ -1,5 +1,13 @@
 # 変更履歴
 
+## 2026/10/24
+
+- \[aux2] register_font_collection()で登録したフォントの解放タイミングを調整
+- \[auf2] get_framebuffer_texture2d()が正しく返却されないことがあるのを修正
+- \[auf2] FILTER_PROC_AUDIOにget_audiobuffer_data(),set_audiobuffer_data()を追加
+- \[aux2] EDIT_HANDLEにget_direct3d_device()を追加
+- \[aux2] PROJECT_FILEに幾つかの関数を追加
+
 ## 2026/10/17
 
 - \[aux2] get_mouse_layer_frame(),pos_to_layer_frame()がtrueとなる条件を実際のレイヤー編集領域のみとなるように修正

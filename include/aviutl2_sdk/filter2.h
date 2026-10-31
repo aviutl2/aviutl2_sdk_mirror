@@ -223,7 +223,7 @@ struct FILTER_ITEM_HIDE_RULE {
 	FILTER_ITEM_HIDE_RULE(LPCWSTR name, LPCWSTR condition_name, OPERATOR condition_operator = OPERATOR::EQUAL, int condition_value = 0)
 		: name(name), condition_name(condition_name), condition_operator(condition_operator), condition_value(condition_value) {}
 	LPCWSTR type = L"hiderule";			// 設定の種別
-	LPCWSTR name;						// 非表示にする設定名 ※設定値を持つ項目のみ
+	LPCWSTR name;						// 非表示にする設定名 ※設定値を持つ項目,設定グループ項目,セパレーター項目
 	LPCWSTR condition_name;				// 非表示の条件の設定名
 										// チェックボックス項目,リスト選択項目,ファイル選択項目,フォルダ選択項目
 										// ※セクション毎のチェックボックスはセクション毎が有効の場合は2を返却(0/1/2)
@@ -322,6 +322,13 @@ enum class BLEND_STATE_MODE : int {
 	ADD		= 3,	// 出力を加算合成
 };
 
+// カメラ制御状態の種別
+enum class CAMERA_MODE : int {
+	OFF			= 0,	// カメラ制御対象外
+	ON			= 1,	// カメラ制御対象
+	EDIT_VIEW	= 2,	// カメラ制御対象(編集用視点)
+};
+
 //----------------------------------------------------------------------------------
 
 // 画像入力のピクセルフォーマット種別
@@ -380,6 +387,8 @@ struct OBJECT_INFO {
 							// ※処理対象のフィルタ効果、オブジェクト入出力の固有ID
 	int flag;				// フラグ
 	static constexpr int FLAG_FILTER_OBJECT = 1;	// フィルタオブジェクトか？
+	static constexpr int FLAG_GROUP_TARGET = 2;		// グループ制御の対象か？
+	static constexpr int FLAG_CAMERA_TARGET = 4;	// カメラ制御の対象か？ (画像フィルタのみ)
 	int layer;				// オブジェクトの現在のレイヤー番号 ※描画対象のオブジェクトのレイヤー番号
 	int	index;				// 複数オブジェクト時の現在の対象番号 ※個別オブジェクト用
 	int	num;				// 複数オブジェクト時の対象数 (1 = 単体オブジェクト / 0 = 不定) ※個別オブジェクト用
@@ -391,6 +400,8 @@ struct OBJECT_INFO {
 	EFFECT_HANDLE effect_handle;	// 自身のエフェクトのハンドル
 
 	inline bool is_filter_object() const { return flag & FLAG_FILTER_OBJECT; }
+	inline bool is_group_target() const { return flag & FLAG_GROUP_TARGET; }
+	inline bool is_camera_target() const { return flag & FLAG_CAMERA_TARGET; }
 };
 
 // オブジェクトの画像パラメータ構造体
@@ -838,6 +849,14 @@ struct FILTER_PROC_VIDEO {
 	// 現在のオブジェクトに適用されるグループ制御の座標変換行列を取得します (グループ制御対象を結合した行列)
 	// 戻り値	: グループ制御対象外の場合はfalse
 	bool (*get_group_matrix)(DirectX::XMMATRIX* matrix);
+
+	// 現在のオブジェクトのカメラ制御の状態を取得します
+	// 戻り値	: カメラ制御状態
+	CAMERA_MODE (*get_camera_mode)();
+
+	// 現在のオブジェクトに影響しているカメラ制御オブジェクトを取得します
+	// 戻り値	: 取得したカメラ制御オブジェクトのハンドル (カメラ制御対象外の場合はnullptrを返却)
+	OBJECT_HANDLE (*get_camera_control_object)();
 
 };
 

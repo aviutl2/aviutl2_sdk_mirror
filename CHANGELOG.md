@@ -1,5 +1,11 @@
 # 変更履歴
 
+## 2026/10/31
+
+- \[auf2] FILTER_ITEM_HIDE_RULEの非表示条件の対象項目を追加
+- \[auf2] FILTER_PROC_VIDEOにget_camera_mode(),get_camera_control_object()を追加
+- \[auf2] OBJECT_INFOに幾つかのフラグを追加
+
 ## 2026/10/24
 
 - \[aux2] register_font_collection()で登録したフォントの解放タイミングを調整

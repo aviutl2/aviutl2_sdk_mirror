@@ -125,6 +125,7 @@ enum class EVENT_TYPE : int {
 	CHANGE_EDIT_SCENE = 3,		// 現在の編集シーンの変更 ※シーン情報の更新も含まれる
 	CHANGE_FOCUS_OBJECT = 4,	// 選択されているオブジェクトの変更
 	CHANGE_EDIT_STATE = 5,		// 編集状態の変更(プレビュー再生・ファイル出力の開始終了時)
+	RELOAD_LANGUAGE = 6,		// 言語設定の再読み込み
 };
 
 // オブジェクトフラグ種別

@@ -1,5 +1,12 @@
 # 変更履歴
 
+## 2026/11/7
+
+- \[aux2] ウィンドウメニューにメニューを登録した場合に言語設定(Menu)が反映されないのを修正
+- \[aux2] register_event_listener()のイベント種別にRELOAD_LANGUAGEを追加
+- \[auf2] 設定名の一部のみを表示させる指定の説明の追加と対象に設定グループ項目とセパレーター項目を追加
+- \[auf2] FILTER_ITEM_HIDE_RULEの非表示条件の条件項目を追加
+
 ## 2026/10/31
 
 - \[auf2] FILTER_ITEM_HIDE_RULEの非表示条件の対象項目を追加

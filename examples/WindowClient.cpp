@@ -3,12 +3,13 @@
 //----------------------------------------------------------------------------------
 #include <windows.h>
 #include <commctrl.h>
+#include <stdint.h>
 
 #include "plugin2.h"
 #include "logger2.h" // ログ出力 
 #include "config2.h" // 設定関連
 
-#define SampleWindowName L"SampleWindowClient"
+#define SampleWindowName L"Sample Window Client"
 #define IDC_BUTTON 1001
 EDIT_HANDLE* edit_handle;
 LOG_HANDLE* logger;
@@ -18,7 +19,7 @@ CONFIG_HANDLE* config;
 //	汎用プラグイン構造体定義
 //---------------------------------------------------------------------
 COMMON_PLUGIN_TABLE common_plugin_table = {
-	L"Sample Window Client",								// プラグインの名前
+	SampleWindowName,										// プラグインの名前
 	L"Sample Window Client version 2.00 By ＫＥＮくん",		// プラグインの情報
 };
 
@@ -138,7 +139,7 @@ EXTERN_C __declspec(dllexport) void RegisterPlugin(HOST_APP_TABLE* host) {
 	CreateWindowEx(
 		0,
 		WC_BUTTON,
-		config->translate(config, L"オブジェクト作成"),
+		config->get_language_text(config, SampleWindowName, L"オブジェクト作成"),
 		WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
 		10, 10, 200, config->get_layout_size(config, "SettingItemHeight"),
 		hwnd,

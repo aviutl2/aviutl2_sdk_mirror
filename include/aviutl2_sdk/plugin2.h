@@ -721,6 +721,20 @@ struct EDIT_SECTION {
 	// color	: レイヤーの背景色 ※aが255以外の場合はデフォルト色になります
 	void (*set_layer_color)(int layer, PIXEL_RGBA color);
 
+	// エフェクトのハンドルを取得します
+	// object	: エフェクトハンドルを取得するオブジェクトのハンドル
+	// index	: オブジェクトが保持しているエフェクトのインデックス
+	// 戻り値	: エフェクトのハンドル (取得出来ない場合はnullptrを返却)
+	//			  ※エフェクトハンドルはエフェクトが破棄されるかコールバック処理の終了まで有効
+	EFFECT_HANDLE (*get_effect_handle)(OBJECT_HANDLE object, int index);
+
+	// エフェクトの種別・フラグを取得します
+	// effect	: 種別・フラグを取得するエフェクトのハンドル
+	// type		: エフェクト種別の格納先へのポインタ (種別はEDIT_HANDLE::EFFECT_TYPE_XXXX)
+	// flag		: エフェクトフラグの格納先へのポインタ (フラグはEDIT_HANDLE::EFFECT_FLAG_XXXX)
+	// 戻り値	: 取得出来た場合はtrue
+	bool (*get_effect_type_flag)(EFFECT_HANDLE effect, int* type, int* flag);
+
 };
 
 // 編集ハンドル構造体
